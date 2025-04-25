@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using WorldCup.Data.Models;
+using System.Windows;
 
 namespace WorldCup.Data.Services;
 
@@ -57,6 +58,8 @@ public class MatchService
     public async Task<List<Match>> GetMatchesForTeamAsync(string gender, string fifaCode)
     {
         var url = $"{BaseUrl(gender)}/matches/country?fifa_code={fifaCode}";
+        Console.WriteLine(">>> URL: " + url);
+
         var response = await _httpClient.GetStringAsync(url);
         return JsonSerializer.Deserialize<List<Match>>(response, _jsonOptions) ?? new();
     }
