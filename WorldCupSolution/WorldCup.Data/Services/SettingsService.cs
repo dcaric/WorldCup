@@ -14,7 +14,7 @@ public class SettingsService
         PropertyNameCaseInsensitive = true
     };
 
-    // 🔹 Load favorite players from JSON file
+    // Load favorite players from JSON file
     public List<Player> LoadFavoritePlayers()
     {
         if (!File.Exists(FavoritePlayersPath))
@@ -24,14 +24,14 @@ public class SettingsService
         return JsonSerializer.Deserialize<List<Player>>(json, _jsonOptions) ?? new();
     }
 
-    // 🔹 Save favorite players to JSON file
+    // Save favorite players to JSON file
     public void SaveFavoritePlayers(List<Player> players)
     {
         var json = JsonSerializer.Serialize(players, _jsonOptions);
         File.WriteAllText(FavoritePlayersPath, json);
     }
 
-    // 🔹 Load favorite team FIFA code
+    // Load favorite team FIFA code
     public string LoadFavoriteTeam()
     {
         return File.Exists(FavoriteTeamPath)
@@ -39,7 +39,7 @@ public class SettingsService
             : "CRO"; // default fallback
     }
 
-    // 🔹 Save favorite team FIFA code
+    // Save favorite team FIFA code
     public void SaveFavoriteTeam(string fifaCode)
     {
         File.WriteAllText(FavoriteTeamPath, fifaCode);

@@ -1,29 +1,74 @@
 ﻿using System.Numerics;
+using System.Text.Json.Serialization;
 
-namespace WorldCup.Data.Models;
-
-public class TeamStatistics
+namespace WorldCup.Data.Models
 {
-    public string Country { get; set; }
-    public int AttemptsOnGoal { get; set; }
-    public int OnTarget { get; set; }
-    public int OffTarget { get; set; }
-    public int Blocked { get; set; }
-    public int Woodwork { get; set; }
-    public int Corners { get; set; }
-    public int Offsides { get; set; }
-    public int BallPossession { get; set; }
-    public int PassAccuracy { get; set; }
-    public int NumPasses { get; set; }
-    public int PassesCompleted { get; set; }
-    public int DistanceCovered { get; set; }
-    public int BallsRecovered { get; set; }
-    public int Tackles { get; set; }
-    public int Clearances { get; set; }
-    public int YellowCards { get; set; }
-    public int RedCards { get; set; }
-    public int FoulsCommitted { get; set; }
-    public string Tactics { get; set; }
-    public List<Player> StartingEleven { get; set; }
-    public List<Player> Substitutes { get; set; }
+    public class TeamStatistics
+    {
+        [JsonPropertyName("country")]
+        public string Country { get; set; }
+
+        [JsonPropertyName("attempts_on_goal")]
+        public int AttemptsOnGoal { get; set; }
+
+        [JsonPropertyName("on_target")]
+        public int OnTarget { get; set; }
+
+        [JsonPropertyName("off_target")]
+        public int OffTarget { get; set; }
+
+        [JsonPropertyName("blocked")]
+        public int Blocked { get; set; }
+
+        [JsonPropertyName("woodwork")]
+        public int Woodwork { get; set; }
+
+        [JsonPropertyName("corners")]
+        public int Corners { get; set; }
+
+        [JsonPropertyName("offsides")]
+        public int Offsides { get; set; }
+
+        [JsonPropertyName("ball_possession")]
+        public int BallPossession { get; set; }
+
+        [JsonPropertyName("pass_accuracy")]
+        public int PassAccuracy { get; set; }
+
+        [JsonPropertyName("num_passes")]
+        public int NumPasses { get; set; }
+
+        [JsonPropertyName("passes_completed")]
+        public int PassesCompleted { get; set; }
+
+        [JsonPropertyName("distance_covered")]
+        public int DistanceCovered { get; set; }
+
+        [JsonPropertyName("balls_recovered")]
+        public int BallsRecovered { get; set; }
+
+        [JsonPropertyName("tackles")]
+        public int Tackles { get; set; }
+
+        [JsonPropertyName("clearances")]
+        public int Clearances { get; set; }
+
+        [JsonPropertyName("yellow_cards")]
+        public int YellowCards { get; set; }
+
+        [JsonPropertyName("red_cards")]
+        public int RedCards { get; set; }
+
+        [JsonPropertyName("fouls_committed")]
+        public int FoulsCommitted { get; set; }
+
+        [JsonPropertyName("tactics")]
+        public string Tactics { get; set; }
+
+        [JsonPropertyName("starting_eleven")]
+        public List<Player> StartingEleven { get; set; }
+
+        [JsonPropertyName("substitutes")]
+        public List<Player> Substitutes { get; set; }
+    }
 }

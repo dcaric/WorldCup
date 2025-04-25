@@ -1,19 +1,49 @@
-﻿namespace WorldCup.Data.Models;
+﻿using System.Text.Json.Serialization;
 
-public class TeamResult
+namespace WorldCup.Data.Models
 {
-    public int Id { get; set; }                       
-    public string Country { get; set; }
-    public string? AlternateName { get; set; }       
-    public string FifaCode { get; set; }
-    public int GroupId { get; set; }
-    public string GroupLetter { get; set; }
-    public int Wins { get; set; }
-    public int Draws { get; set; }
-    public int Losses { get; set; }
-    public int GamesPlayed { get; set; }
-    public int Points { get; set; }
-    public int GoalsFor { get; set; }
-    public int GoalsAgainst { get; set; }
-    public int GoalDifferential { get; set; }
+    public class TeamResult
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
+
+        [JsonPropertyName("country")]
+        public string Country { get; set; }
+
+        [JsonPropertyName("alternate_name")]
+        public string? AlternateName { get; set; }
+
+        [JsonPropertyName("fifa_code")]
+        public string FifaCode { get; set; }
+
+        [JsonPropertyName("group_id")]
+        public int GroupId { get; set; }
+
+        [JsonPropertyName("group_letter")]
+        public string GroupLetter { get; set; }
+
+        [JsonPropertyName("wins")]
+        public int Wins { get; set; }
+
+        [JsonPropertyName("draws")]
+        public int Draws { get; set; }
+
+        [JsonPropertyName("losses")]
+        public int Losses { get; set; }
+
+        [JsonPropertyName("games_played")]
+        public int GamesPlayed { get; set; }
+
+        [JsonPropertyName("points")]
+        public int Points { get; set; }
+
+        [JsonPropertyName("goals_for")]
+        public int GoalsFor { get; set; }
+
+        [JsonPropertyName("goals_against")]
+        public int GoalsAgainst { get; set; }
+
+        [JsonPropertyName("goal_differential")]
+        public int GoalDifferential { get; set; }
+    }
 }
