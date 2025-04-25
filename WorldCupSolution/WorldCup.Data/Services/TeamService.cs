@@ -6,11 +6,13 @@ namespace WorldCup.Data.Services;
 public class TeamService
 {
     private readonly HttpClient _httpClient;
+    private readonly ConfigService _config;
     private readonly JsonSerializerOptions _jsonOptions;
 
-    public TeamService()
+    public TeamService(ConfigService configService)
     {
         _httpClient = new HttpClient();
+        _config = configService;
         _jsonOptions = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
@@ -20,27 +22,58 @@ public class TeamService
     private string BaseUrl(string gender) =>
         $"https://worldcup-vua.nullbit.hr/{gender.ToLower()}";
 
-    // 🔹 Get all teams (basic info)
     public async Task<List<Team>> GetTeamsAsync(string gender = "men")
     {
+        if (_config.Settings.DataSource == "local")
+        {
+            var file = $"./Data/{gender}_teams.json";
+            if (File.Exists(file))
+            {
+                var json = await File.ReadAllTextAsync(file);
+                return JsonSerializer.Deserialize<List<Team>>(json, _jsonOptions) ?? new();
+            }
+        }
+
         var url = $"{BaseUrl(gender)}/teams";
         var response = await _httpClient.GetStringAsync(url);
         return JsonSerializer.Deserialize<List<Team>>(response, _jsonOptions) ?? new();
     }
 
-    // 🔹 Get all team results (with match stats)
     public async Task<List<TeamResult>> GetTeamResultsAsync(string gender = "men")
     {
+        if (_config.Settings.DataSource == "local")
+        {
+            var file = $"./Data/{gender}_team_results.json";
+            if (File.Exists(file))
+            {
+                var json = await File.ReadAllTextAsync(file);
+                return JsonSerializer.Deserialize<List<TeamResult>>(json, _jsonOptions) ?? new();
+            }
+        }
+
         var url = $"{BaseUrl(gender)}/teams/results";
         var response = await _httpClient.GetStringAsync(url);
         return JsonSerializer.Deserialize<List<TeamResult>>(response, _jsonOptions) ?? new();
     }
 
-    // 🔹 Get all group results
     public async Task<List<GroupResult>> GetGroupResultsAsync(string gender = "men")
     {
+        if (_config.Settings.DataSource == "local")
+        {
+            var file = $"./Data/{gender}_group_results.json";
+            if (File.Exists(file))
+            {
+                var json = await File.ReadAllTextAsync(file);
+                return JsonSerializer.Deserialize<List<GroupResult>>(json, _jsonOptions) ?? new();
+            }
+        }
+
         var url = $"{BaseUrl(gender)}/teams/group_results";
+        Console.WriteLine($"url {url}");
+
         var response = await _httpClient.GetStringAsync(url);
+        Console.WriteLine($"response {response}");
+
         return JsonSerializer.Deserialize<List<GroupResult>>(response, _jsonOptions) ?? new();
     }
 }

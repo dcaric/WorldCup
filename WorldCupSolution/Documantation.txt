@@ -1,0 +1,7 @@
+Data Layer (Class Library)  - this is like Model 
+
+Windows Forms (WinForms) Application  -- This is Service similar to controller in backend app
+
+Windows Presentation Foundation (WPF) Application  -- This is view, what user see
+
+
