@@ -60,7 +60,7 @@ namespace WorldCup.Data.Models
         public int RedCards { get; set; }
 
         [JsonPropertyName("fouls_committed")]
-        public int FoulsCommitted { get; set; }
+        public int? FoulsCommitted { get; set; } // fixed to nullable
 
         [JsonPropertyName("tactics")]
         public string Tactics { get; set; }

@@ -36,6 +36,26 @@ public class TeamService
 
         var url = $"{BaseUrl(gender)}/teams";
         var response = await _httpClient.GetStringAsync(url);
+        //Console.WriteLine($"GetTeamsAsync: response {response}");
+
+        /*
+           Deserialize is doing:
+           converts JSON like:
+            [
+                {"country": "Croatia", "fifa_code": "CRO"},
+                {"country": "Brazil", "fifa_code": "BRA"}
+            ]
+
+        into object like:
+        
+            teams[0].Country = "Croatia";
+            teams[0].FifaCode = "CRO";
+
+            teams[1].Country = "Brazil";
+            teams[1].FifaCode = "BRA";
+         */
+        //Console.WriteLine($"GetTeamsAsync: JsonSerializer {JsonSerializer.Deserialize<List<Team>>(response, _jsonOptions)}");
+
         return JsonSerializer.Deserialize<List<Team>>(response, _jsonOptions) ?? new();
     }
 
@@ -69,10 +89,10 @@ public class TeamService
         }
 
         var url = $"{BaseUrl(gender)}/teams/group_results";
-        Console.WriteLine($"url {url}");
+        //Console.WriteLine($"url {url}");
 
         var response = await _httpClient.GetStringAsync(url);
-        Console.WriteLine($"response {response}");
+       // Console.WriteLine($"response {response}");
 
         return JsonSerializer.Deserialize<List<GroupResult>>(response, _jsonOptions) ?? new();
     }

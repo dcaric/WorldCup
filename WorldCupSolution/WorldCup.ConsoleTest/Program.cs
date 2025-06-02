@@ -6,6 +6,7 @@ class Program
 {
     static async Task Main(string[] args)
     {
+        // TESTING 
         var configService = new ConfigService();
         var matchService = new MatchService(configService);
         var teamService = new TeamService(configService);
@@ -55,8 +56,9 @@ class Program
         Console.WriteLine($"Favorite team is now: {favTeam}");
 
         Console.WriteLine("\n--- ALL TESTS FINISHED ---");
+        
 
-
+        // downloading JSON files locally in Data folder
         static async Task DownloadJsonFile(string gender, string endpoint)
         {
             var client = new HttpClient();
@@ -92,7 +94,7 @@ class Program
         await DownloadJsonFile("women", "teams/group_results");
 
         Console.WriteLine("--- DOWNLOAD COMPLETED ---");
-
+        
 
     }
 }

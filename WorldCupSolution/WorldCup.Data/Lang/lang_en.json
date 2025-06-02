@@ -1,0 +1,14 @@
+﻿{
+    "title": "World Cup App",
+    "gender": "Gender",
+    "language": "Language",
+    "favoriteTeam": "Favorite Team",
+    "favoritePlayer": "Favorite Player",
+    "loadMatches": "Load Matches",
+    "loadPlayers": "Load Players",
+    "addToFavorites": "Add to Favorites",
+    "remove": "Remove",
+    "country": "Country",
+    "listOfMatches": "List of Matches",
+    "listOfPlayers": "List of Players"
+}

@@ -56,6 +56,8 @@ public class MatchService
         // here it sends API request to the backend and fetches matches
         var url = $"{BaseUrl(gender)}/matches";
         var response = await _httpClient.GetStringAsync(url);
+
+        //Console.WriteLine(response); // Log entire JSON to inspect
         return JsonSerializer.Deserialize<List<Match>>(response, _jsonOptions) ?? new();
     }
 
@@ -69,4 +71,5 @@ public class MatchService
         var response = await _httpClient.GetStringAsync(url);
         return JsonSerializer.Deserialize<List<Match>>(response, _jsonOptions) ?? new();
     }
+
 }
