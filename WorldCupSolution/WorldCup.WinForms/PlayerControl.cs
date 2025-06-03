@@ -48,6 +48,13 @@ namespace WorldCup.WinForms
             }
         }
 
+        public void SetFavorite(bool favorite)
+        {
+            IsFavorite = favorite;
+            picStar.Visible = favorite;
+        }
+
+
         /*public void SetFavorite(bool favorite)
         {
             IsFavorite = favorite;

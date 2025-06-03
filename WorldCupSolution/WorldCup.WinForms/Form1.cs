@@ -13,6 +13,7 @@ namespace WorldCup.WinForms
         private List<Match> _matches;
         private SettingsService _settingsService;
         private List<Player> _favoritePlayers = new();
+        private List<Player> _allPlayersInMatch = new();
         private LocalizationService _localizationService;
         private ContextMenuStrip _favoritePlayerContextMenu;
 
@@ -22,7 +23,7 @@ namespace WorldCup.WinForms
         {
             InitializeComponent();
             _favoritePlayerContextMenu = new ContextMenuStrip();
-           // _favoritePlayerContextMenu.Items.Add("Remove from Favorites", null, RemoveFromFavorites_Click);
+            // _favoritePlayerContextMenu.Items.Add("Remove from Favorites", null, RemoveFromFavorites_Click);
 
 
             _localizationService = new LocalizationService();
@@ -40,22 +41,22 @@ namespace WorldCup.WinForms
 
         }
 
-       /* private void RemoveFromFavorites_Click(object? sender, EventArgs e)
-        {
-            if (_favoritePlayerContextMenu.SourceControl is PlayerControl playerControl)
-            {
-                panelFavoritePlayers.Controls.Remove(playerControl);
-                panelPlayers.Controls.Add(playerControl);
+        /* private void RemoveFromFavorites_Click(object? sender, EventArgs e)
+         {
+             if (_favoritePlayerContextMenu.SourceControl is PlayerControl playerControl)
+             {
+                 panelFavoritePlayers.Controls.Remove(playerControl);
+                 panelPlayers.Controls.Add(playerControl);
 
-                playerControl.SetFavorite(false);
-                playerControl.ContextMenuStrip = null; // remove context menu
+                 playerControl.SetFavorite(false);
+                 playerControl.ContextMenuStrip = null; // remove context menu
 
-                // Remove from model
-                var player = playerControl.PlayerData;
-                _favoritePlayers.RemoveAll(p => p.Name == player.Name);
-                _settingsService.SaveFavoritePlayers(_favoritePlayers);
-            }
-        }*/
+                 // Remove from model
+                 var player = playerControl.PlayerData;
+                 _favoritePlayers.RemoveAll(p => p.Name == player.Name);
+                 _settingsService.SaveFavoritePlayers(_favoritePlayers);
+             }
+         }*/
 
         private void PlayerControl_MouseDown(object sender, MouseEventArgs e)
         {
@@ -78,15 +79,33 @@ namespace WorldCup.WinForms
         {
             if (e.Data != null && e.Data.GetData(typeof(PlayerControl)) is PlayerControl control)
             {
-                panelFavoritePlayers.Controls.Remove(control);
-                panelPlayers.Controls.Add(control);
+                // Make sure the player originally belongs to this match
+                var player = control.PlayerData;
+
+                // Check if player is in the original match list
+                bool existsInMatch = _allPlayersInMatch.Any(p => p.Name == player.Name);
+                if (!existsInMatch)
+                {
+                    MessageBox.Show("This player doesn't belong to the current match.");
+                    return;
+                }
+
+                // Avoid duplicates
+                if (!panelPlayers.Controls.Contains(control))
+                {
+                    panelFavoritePlayers.Controls.Remove(control);
+                    panelPlayers.Controls.Add(control);
+                }
+
+                control.SetFavorite(false);
+                control.ContextMenuStrip = null;
 
                 // Update favorite list
-                var player = control.PlayerData;
                 _favoritePlayers.RemoveAll(p => p.Name == player.Name);
                 _settingsService.SaveFavoritePlayers(_favoritePlayers);
             }
         }
+
 
 
 
@@ -293,7 +312,7 @@ namespace WorldCup.WinForms
         }
 
 
-      
+
 
         private void btnRemoveFavoriteTeam_Click_Click(object sender, EventArgs e)
         {
@@ -326,10 +345,6 @@ namespace WorldCup.WinForms
             }
         }
 
-        private void cmbTeamSide_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
 
         private void lstPlayers_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -383,6 +398,8 @@ namespace WorldCup.WinForms
                 return;
             }
 
+            // Store full list for later comparisons
+            _allPlayersInMatch = stats.StartingEleven.Concat(stats.Substitutes).ToList();
 
             // DO NOT clear panelFavoritePlayers — it contains your favorites already
             panelPlayers.Controls.Clear();
@@ -400,5 +417,9 @@ namespace WorldCup.WinForms
             }
         }
 
+        private void cmbTeamSide_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

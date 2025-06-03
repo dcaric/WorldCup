@@ -39,6 +39,7 @@
             // 
             // PlayerControl
             // 
+            BackColor = SystemColors.ControlLight;
             Controls.Add(lblInfo);
             Controls.Add(picStar);
             Name = "PlayerControl";

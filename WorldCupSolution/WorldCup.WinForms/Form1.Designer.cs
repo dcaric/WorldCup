@@ -43,7 +43,6 @@
             btnRemoveFavoriteTeam = new Button();
             cmbLanguage = new ComboBox();
             lblLanguage = new Label();
-            cmbTeamSide = new ComboBox();
             panelPlayers = new FlowLayoutPanel();
             panelFavoritePlayers = new FlowLayoutPanel();
             btnLoadPlayers = new Button();
@@ -61,7 +60,7 @@
             // listOfPlayers
             // 
             listOfPlayers.AutoSize = true;
-            listOfPlayers.Location = new Point(16, 141);
+            listOfPlayers.Location = new Point(21, 283);
             listOfPlayers.Name = "listOfPlayers";
             listOfPlayers.Size = new Size(79, 15);
             listOfPlayers.TabIndex = 7;
@@ -127,7 +126,7 @@
             // lblFavoritePlayer
             // 
             lblFavoritePlayer.AutoSize = true;
-            lblFavoritePlayer.Location = new Point(21, 317);
+            lblFavoritePlayer.Location = new Point(21, 507);
             lblFavoritePlayer.Name = "lblFavoritePlayer";
             lblFavoritePlayer.Size = new Size(96, 15);
             lblFavoritePlayer.TabIndex = 18;
@@ -189,22 +188,13 @@
             lblLanguage.TabIndex = 25;
             lblLanguage.Text = "Language";
             // 
-            // cmbTeamSide
-            // 
-            cmbTeamSide.FormattingEnabled = true;
-            cmbTeamSide.Location = new Point(157, 115);
-            cmbTeamSide.Name = "cmbTeamSide";
-            cmbTeamSide.Size = new Size(127, 23);
-            cmbTeamSide.TabIndex = 26;
-            cmbTeamSide.SelectedIndexChanged += cmbTeamSide_SelectedIndexChanged;
-            // 
             // panelPlayers
             // 
             panelPlayers.AllowDrop = true;
             panelPlayers.AutoScroll = true;
             panelPlayers.BorderStyle = BorderStyle.FixedSingle;
             panelPlayers.FlowDirection = FlowDirection.TopDown;
-            panelPlayers.Location = new Point(21, 159);
+            panelPlayers.Location = new Point(21, 125);
             panelPlayers.Name = "panelPlayers";
             panelPlayers.Size = new Size(263, 155);
             panelPlayers.TabIndex = 27;
@@ -217,7 +207,7 @@
             panelFavoritePlayers.AutoScroll = true;
             panelFavoritePlayers.BorderStyle = BorderStyle.FixedSingle;
             panelFavoritePlayers.FlowDirection = FlowDirection.TopDown;
-            panelFavoritePlayers.Location = new Point(21, 340);
+            panelFavoritePlayers.Location = new Point(21, 317);
             panelFavoritePlayers.Name = "panelFavoritePlayers";
             panelFavoritePlayers.Size = new Size(263, 187);
             panelFavoritePlayers.TabIndex = 28;
@@ -225,7 +215,7 @@
             // 
             // btnLoadPlayers
             // 
-            btnLoadPlayers.Location = new Point(21, 115);
+            btnLoadPlayers.Location = new Point(21, 96);
             btnLoadPlayers.Name = "btnLoadPlayers";
             btnLoadPlayers.Size = new Size(128, 23);
             btnLoadPlayers.TabIndex = 29;
@@ -241,7 +231,6 @@
             Controls.Add(btnLoadPlayers);
             Controls.Add(panelFavoritePlayers);
             Controls.Add(panelPlayers);
-            Controls.Add(cmbTeamSide);
             Controls.Add(lblLanguage);
             Controls.Add(cmbLanguage);
             Controls.Add(btnRemoveFavoriteTeam);
@@ -280,7 +269,6 @@
         private Button btnRemoveFavoriteTeam;
         private ComboBox cmbLanguage;
         private Label lblLanguage;
-        private ComboBox cmbTeamSide;
         private FlowLayoutPanel panelPlayers;
         private FlowLayoutPanel panelFavoritePlayers;
         private Button btnLoadPlayers;
