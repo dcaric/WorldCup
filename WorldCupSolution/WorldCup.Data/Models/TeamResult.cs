@@ -23,27 +23,27 @@ namespace WorldCup.Data.Models
         public string GroupLetter { get; set; }
 
         [JsonPropertyName("wins")]
-        public int Wins { get; set; }
+        public int? Wins { get; set; }
 
         [JsonPropertyName("draws")]
-        public int Draws { get; set; }
+        public int? Draws { get; set; }
 
         [JsonPropertyName("losses")]
-        public int Losses { get; set; }
+        public int? Losses { get; set; }
 
         [JsonPropertyName("games_played")]
-        public int GamesPlayed { get; set; }
+        public int? GamesPlayed { get; set; }
 
         [JsonPropertyName("points")]
-        public int Points { get; set; }
+        public int? Points { get; set; }
 
         [JsonPropertyName("goals_for")]
-        public int GoalsFor { get; set; }
+        public int? GoalsFor { get; set; }
 
         [JsonPropertyName("goals_against")]
-        public int GoalsAgainst { get; set; }
+        public int? GoalsAgainst { get; set; }
 
         [JsonPropertyName("goal_differential")]
-        public int GoalDifferential { get; set; }
+        public int? GoalDifferential { get; set; }
     }
 }

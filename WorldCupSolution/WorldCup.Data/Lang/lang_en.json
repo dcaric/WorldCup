@@ -10,5 +10,7 @@
     "remove": "Remove",
     "country": "Country",
     "listOfMatches": "List of Matches",
-    "listOfPlayers": "List of Players"
+    "listOfPlayers": "List of Players",
+    "noMatchesFound": "No matches found for selected team.",
+    "matchLoadError": "Error loading match data. Please try again later."
 }

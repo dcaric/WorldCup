@@ -14,52 +14,155 @@ namespace WorldCup.WinForms
         private SettingsService _settingsService;
         private List<Player> _favoritePlayers = new();
         private LocalizationService _localizationService;
+        private ContextMenuStrip _favoritePlayerContextMenu;
+
+
 
         public Form1()
         {
             InitializeComponent();
+            _favoritePlayerContextMenu = new ContextMenuStrip();
+           // _favoritePlayerContextMenu.Items.Add("Remove from Favorites", null, RemoveFromFavorites_Click);
+
+
             _localizationService = new LocalizationService();
+
+            /*
+            panelPlayers.AllowDrop = true;
+            panelFavoritePlayers.AllowDrop = true;
+            */
+
+            panelPlayers.DragEnter += Panel_DragEnter;
+            panelFavoritePlayers.DragEnter += Panel_DragEnter;
+
+            panelPlayers.DragDrop += PanelPlayers_DragDrop;
+            panelFavoritePlayers.DragDrop += PanelFavoritePlayers_DragDrop;
+
         }
+
+       /* private void RemoveFromFavorites_Click(object? sender, EventArgs e)
+        {
+            if (_favoritePlayerContextMenu.SourceControl is PlayerControl playerControl)
+            {
+                panelFavoritePlayers.Controls.Remove(playerControl);
+                panelPlayers.Controls.Add(playerControl);
+
+                playerControl.SetFavorite(false);
+                playerControl.ContextMenuStrip = null; // remove context menu
+
+                // Remove from model
+                var player = playerControl.PlayerData;
+                _favoritePlayers.RemoveAll(p => p.Name == player.Name);
+                _settingsService.SaveFavoritePlayers(_favoritePlayers);
+            }
+        }*/
+
+        private void PlayerControl_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                this.DoDragDrop(this, DragDropEffects.Move);
+            }
+        }
+
+
+        private void Panel_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(typeof(PlayerControl)))
+                e.Effect = DragDropEffects.Move;
+            else
+                e.Effect = DragDropEffects.None;
+        }
+
+        private void PanelPlayers_DragDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data != null && e.Data.GetData(typeof(PlayerControl)) is PlayerControl control)
+            {
+                panelFavoritePlayers.Controls.Remove(control);
+                panelPlayers.Controls.Add(control);
+
+                // Update favorite list
+                var player = control.PlayerData;
+                _favoritePlayers.RemoveAll(p => p.Name == player.Name);
+                _settingsService.SaveFavoritePlayers(_favoritePlayers);
+            }
+        }
+
+
+
+        private void PanelFavoritePlayers_DragDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data != null && e.Data.GetData(typeof(PlayerControl)) is PlayerControl control)
+            {
+                panelPlayers.Controls.Remove(control);
+                panelFavoritePlayers.Controls.Add(control);
+                control.ContextMenuStrip = _favoritePlayerContextMenu;
+
+                // Update favorite list
+                var player = control.PlayerData;
+                if (!_favoritePlayers.Any(p => p.Name == player.Name))
+                    _favoritePlayers.Add(player);
+
+                _settingsService.SaveFavoritePlayers(_favoritePlayers);
+            }
+        }
+
+
+
 
         // 
         private async Task LoadTeams()
         {
             var gender = cmbGender.SelectedItem?.ToString() ?? "men";
 
-            // calls method GetTeamsAsync from team service
-            _teams = await _teamService.GetTeamsAsync(gender);
+            try
+            {
+                _teams = await _teamService.GetTeamsAsync(gender);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message); // user-friendly error shown in UI
+                return;
+            }
 
-            // clears combo favourite teams
             cmbFavoriteTeam.Items.Clear();
-            // loads data into combo favourite teams
             foreach (var team in _teams)
             {
                 cmbFavoriteTeam.Items.Add($"{team.FifaCode} - {team.Country}");
             }
         }
 
+
         // starts first at program start
         private async void Form1_Load(object sender, EventArgs e)
         {
-            // initializes objects for each service
             _configService = new ConfigService();
             _teamService = new TeamService(_configService);
             _matchService = new MatchService(_configService);
             _settingsService = new SettingsService();
 
-            // fills combo gender with man and woman
             cmbGender.Items.AddRange(new[] { "men", "women" });
             cmbGender.SelectedIndex = 0;
 
+            //cmbTeamSide.Items.AddRange(new[] { "Home", "Away" });
+            //cmbTeamSide.SelectedIndex = 0;
 
-            // Load favorite players
+            // Load favorite players from disk
             _favoritePlayers = _settingsService.LoadFavoritePlayers();
+
+            // 🟢 Render favorite player controls visually
+            panelFavoritePlayers.Controls.Clear();
             foreach (var p in _favoritePlayers)
             {
-                lstFavouritePlayers.Items.Add(p.Name);
+
+                var ctrl = new PlayerControl(p, true);
+                ctrl.Margin = new Padding(5);
+                ctrl.ContextMenuStrip = _favoritePlayerContextMenu;
+
+                panelFavoritePlayers.Controls.Add(ctrl);
             }
 
-            // Load favorite teams
+            // Load favorite teams from file
             var favTeamFile = "./Data/favourite_teams.txt";
             if (File.Exists(favTeamFile))
             {
@@ -70,14 +173,14 @@ namespace WorldCup.WinForms
                 }
             }
 
-            cmbLanguage.Items.AddRange(new[] { "en", "hr" }); // English, Croatian
+            cmbLanguage.Items.AddRange(new[] { "en", "hr" });
             cmbLanguage.SelectedItem = _configService.Settings.Language;
             _localizationService.LoadLanguage(_configService.Settings.Language);
             ApplyLocalization();
 
-            // calls LoadTeams function
             await LoadTeams();
         }
+
 
         private void ApplyLocalization()
         {
@@ -89,11 +192,8 @@ namespace WorldCup.WinForms
             lblFavoriteTeam.Text = _localizationService["favoriteTeam"];
             lblFavoritePlayer.Text = _localizationService["favoritePlayer"];
             btnLoadMatches.Text = _localizationService["loadMatches"];
-            btnLoadPlayers.Text = _localizationService["loadPlayers"];
             favTeamAdd.Text = _localizationService["addToFavorites"];
             btnRemoveFavoriteTeam.Text = _localizationService["remove"];
-            favPlayerAdd.Text = _localizationService["addToFavorites"];
-            btnRemoveFavoritePlayer.Text = _localizationService["remove"];
             Country.Text = _localizationService["country"];
             listOfMatches.Text = _localizationService["listOfMatches"];
             listOfPlayers.Text = _localizationService["listOfPlayers"];
@@ -123,13 +223,20 @@ namespace WorldCup.WinForms
 
             try
             {
-                // calls GetMatchesForTeamAsync from match service
                 // fetches all matches for specific gender and team
                 _matches = await _matchService.GetMatchesForTeamAsync(gender, fifaCode);
+
+                if (_matches.Count == 0)
+                {
+                    MessageBox.Show(_localizationService["noMatchesFound"]);
+
+                    return;
+                }
             }
             catch (Exception ex)
             {
-                //MessageBox.Show("ERROR: " + ex.Message);
+                MessageBox.Show(_localizationService["matchLoadError"]);
+                System.Diagnostics.Debug.WriteLine("LoadMatches error: " + ex.Message);
                 return;
             }
 
@@ -143,25 +250,6 @@ namespace WorldCup.WinForms
             }
         }
 
-        private void btnLoadPlayers_Click(object sender, EventArgs e)
-        {
-            var selectedIndex = lstMatches.SelectedIndex;
-            if (selectedIndex == -1) return;
-
-            var selectedMatch = _matches[selectedIndex];
-            lstPlayers.Items.Clear();
-
-            if (selectedMatch.HomeTeamStatistics == null)
-            {
-                //MessageBox.Show("No statistics available for this match!");
-                return;
-            }
-
-            foreach (var player in selectedMatch.HomeTeamStatistics.StartingEleven)
-            {
-                lstPlayers.Items.Add(player.Name);
-            }
-        }
 
         private void cmbGender_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -205,57 +293,7 @@ namespace WorldCup.WinForms
         }
 
 
-        private void favPlayerAdd_Click(object sender, EventArgs e)
-        {
-            var matchIndex = lstMatches.SelectedIndex;
-            var playerIndex = lstPlayers.SelectedIndex;
-
-            if (matchIndex == -1 || playerIndex == -1)
-            {
-                MessageBox.Show("Please select both a match and a player.");
-                return;
-            }
-
-            var selectedMatch = _matches[matchIndex];
-            var player = selectedMatch.HomeTeamStatistics.StartingEleven[playerIndex];
-
-            if (_favoritePlayers.Any(p => p.Name == player.Name))
-            {
-                MessageBox.Show("Player is already in favorites.");
-                return;
-            }
-
-            _favoritePlayers.Add(player);
-            lstFavouritePlayers.Items.Add(player.Name);
-
-            // ✅ Ensure folder exists before saving
-            Directory.CreateDirectory("./Data");
-            _settingsService.SaveFavoritePlayers(_favoritePlayers);
-        }
-
-        private void btnRemoveFavoritePlayer_Click_Click(object sender, EventArgs e)
-        {
-            var selectedIndex = lstFavouritePlayers.SelectedIndex;
-            if (selectedIndex == -1)
-            {
-                MessageBox.Show("Select a player to remove.");
-                return;
-            }
-
-            var playerName = lstFavouritePlayers.SelectedItem.ToString();
-
-            // Remove from UI
-            lstFavouritePlayers.Items.RemoveAt(selectedIndex);
-
-            // Remove from list
-            var player = _favoritePlayers.FirstOrDefault(p => p.Name == playerName);
-            if (player != null)
-            {
-                _favoritePlayers.Remove(player);
-                Directory.CreateDirectory("./Data");
-                _settingsService.SaveFavoritePlayers(_favoritePlayers);
-            }
-        }
+      
 
         private void btnRemoveFavoriteTeam_Click_Click(object sender, EventArgs e)
         {
@@ -287,5 +325,80 @@ namespace WorldCup.WinForms
 
             }
         }
+
+        private void cmbTeamSide_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lstPlayers_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lstFavouritePlayers_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void panelPlayers_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void panelPlayers_Paint_1(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void lblFavoritePlayer_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnLoadPlayers_Click(object sender, EventArgs e)
+        {
+            var selectedIndex = lstMatches.SelectedIndex;
+            if (selectedIndex == -1) return;
+
+            var selectedMatch = _matches[selectedIndex];
+
+            TeamStatistics stats = null;
+
+            stats = selectedMatch.HomeTeamStatistics;
+            /*
+            if (cmbTeamSide.SelectedItem?.ToString() == "Home")
+            {
+                stats = selectedMatch.HomeTeamStatistics;
+            }
+            else if (cmbTeamSide.SelectedItem?.ToString() == "Away")
+            {
+                stats = selectedMatch.AwayTeamStatistics;
+            }
+            */
+
+            if (stats == null)
+            {
+                MessageBox.Show("No statistics available for this match/side.");
+                return;
+            }
+
+
+            // DO NOT clear panelFavoritePlayers — it contains your favorites already
+            panelPlayers.Controls.Clear();
+
+            foreach (var player in stats.StartingEleven.Concat(stats.Substitutes))
+            {
+                bool isFavorite = _favoritePlayers.Any(p => p.Name == player.Name);
+
+                // Skip adding to main list if it's already in favorites
+                if (isFavorite) continue;
+
+                var playerControl = new PlayerControl(player, isFavorite);
+                playerControl.Margin = new Padding(5);
+                panelPlayers.Controls.Add(playerControl);
+            }
+        }
+
     }
 }

@@ -5,19 +5,19 @@ namespace WorldCup.Data.Models
     public class Match
     {
         [JsonPropertyName("venue")]
-        public string Venue { get; set; }
+        public string? Venue { get; set; }
 
         [JsonPropertyName("location")]
-        public string Location { get; set; }
+        public string? Location { get; set; }
 
         [JsonPropertyName("status")]
-        public string Status { get; set; }
+        public string? Status { get; set; }
 
         [JsonPropertyName("time")]
-        public string Time { get; set; }
+        public string? Time { get; set; }
 
         [JsonPropertyName("fifa_id")]
-        public string FifaId { get; set; }
+        public string? FifaId { get; set; }
 
         [JsonPropertyName("weather")]
         public Weather Weather { get; set; }

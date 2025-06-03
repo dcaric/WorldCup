@@ -22,42 +22,66 @@ public class TeamService
     private string BaseUrl(string gender) =>
         $"https://worldcup-vua.nullbit.hr/{gender.ToLower()}";
 
+  
+    /*
+       Deserialize is doing:
+       converts JSON like:
+        [
+            {"country": "Croatia", "fifa_code": "CRO"},
+            {"country": "Brazil", "fifa_code": "BRA"}
+        ]
+
+    into object like:
+
+        teams[0].Country = "Croatia";
+        teams[0].FifaCode = "CRO";
+
+        teams[1].Country = "Brazil";
+        teams[1].FifaCode = "BRA";
+     */
+    //Console.WriteLine($"GetTeamsAsync: JsonSerializer {JsonSerializer.Deserialize<List<Team>>(response, _jsonOptions)}");
     public async Task<List<Team>> GetTeamsAsync(string gender = "men")
     {
-        if (_config.Settings.DataSource == "local")
+        try
         {
-            var file = $"./Data/{gender}_teams.json";
-            if (File.Exists(file))
+            if (_config.Settings.DataSource == "local")
             {
-                var json = await File.ReadAllTextAsync(file);
-                return JsonSerializer.Deserialize<List<Team>>(json, _jsonOptions) ?? new();
+                var file = $"./Data/{gender}_teams.json";
+                Console.WriteLine($"[GetTeamsAsync] Local file: {file}");
+
+                if (File.Exists(file))
+                {
+                    var json = await File.ReadAllTextAsync(file);
+                    return JsonSerializer.Deserialize<List<Team>>(json, _jsonOptions) ?? new();
+                }
+
+                Console.WriteLine("[GetTeamsAsync] Local file not found.");
+                return new(); // empty list fallback
             }
+
+            var url = $"{BaseUrl(gender)}/teams";
+            Console.WriteLine($"[GetTeamsAsync] API URL: {url}");
+
+            var response = await _httpClient.GetStringAsync(url);
+            return JsonSerializer.Deserialize<List<Team>>(response, _jsonOptions) ?? new();
         }
-
-        var url = $"{BaseUrl(gender)}/teams";
-        var response = await _httpClient.GetStringAsync(url);
-        //Console.WriteLine($"GetTeamsAsync: response {response}");
-
-        /*
-           Deserialize is doing:
-           converts JSON like:
-            [
-                {"country": "Croatia", "fifa_code": "CRO"},
-                {"country": "Brazil", "fifa_code": "BRA"}
-            ]
-
-        into object like:
-        
-            teams[0].Country = "Croatia";
-            teams[0].FifaCode = "CRO";
-
-            teams[1].Country = "Brazil";
-            teams[1].FifaCode = "BRA";
-         */
-        //Console.WriteLine($"GetTeamsAsync: JsonSerializer {JsonSerializer.Deserialize<List<Team>>(response, _jsonOptions)}");
-
-        return JsonSerializer.Deserialize<List<Team>>(response, _jsonOptions) ?? new();
+        catch (HttpRequestException httpEx)
+        {
+            Console.WriteLine("HTTP request error: " + httpEx.Message);
+            throw new Exception("Failed to retrieve teams. Network issue or server is unreachable.");
+        }
+        catch (JsonException jsonEx)
+        {
+            Console.WriteLine("Deserialization error: " + jsonEx.Message);
+            throw new Exception("Failed to parse team data. Server response format may be incorrect.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Unexpected error: " + ex.Message);
+            throw new Exception("An unexpected error occurred while loading teams.");
+        }
     }
+
 
     public async Task<List<TeamResult>> GetTeamResultsAsync(string gender = "men")
     {

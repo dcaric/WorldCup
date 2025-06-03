@@ -13,6 +13,6 @@ public class Team
 
     [JsonPropertyName("group_id")]
 
-    public int GroupId { get; set; }
+    public int? GroupId { get; set; }
     public string GroupLetter { get; set; }
 }

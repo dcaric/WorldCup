@@ -1,5 +1,5 @@
 {
-    "data_source": "api", // or "local"
+    "data_source": "local", // api or local
     "gender": "men",
     "language": "en",
     "favorite_team": "CRO"
