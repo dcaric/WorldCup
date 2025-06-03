@@ -6,17 +6,25 @@ namespace WorldCup.WinForms
     public partial class Form1 : Form
     {
         // creates objects for each service
-        private ConfigService _configService;
         private TeamService _teamService;
         private MatchService _matchService;
-        private List<Team> _teams;
-        private List<Match> _matches;
         private SettingsService _settingsService;
-        private List<Player> _favoritePlayers = new();
-        private List<Player> _allPlayersInMatch = new();
         private LocalizationService _localizationService;
         private ContextMenuStrip _favoritePlayerContextMenu;
 
+        // lists
+        private List<Team> _teams = new();
+        private List<Match> _matches = new();
+        private List<Player> _favoritePlayers = new();
+        private List<Player> _allPlayersInMatch = new();
+
+        // config services
+        private ConfigService _configService;
+        private AppConfig _appConfig;
+
+        // introduced because gender was overwritten 
+        // so to solve this raise condition this var is introduced
+        private bool _suppressGenderSave = false;
 
 
         public Form1()
@@ -41,22 +49,65 @@ namespace WorldCup.WinForms
 
         }
 
-        /* private void RemoveFromFavorites_Click(object? sender, EventArgs e)
-         {
-             if (_favoritePlayerContextMenu.SourceControl is PlayerControl playerControl)
-             {
-                 panelFavoritePlayers.Controls.Remove(playerControl);
-                 panelPlayers.Controls.Add(playerControl);
+        // starts first at program start
+        private async void Form1_Load(object sender, EventArgs e)
+        {
+            _configService = new ConfigService();
+            _teamService = new TeamService(_configService);
+            _matchService = new MatchService(_configService);
+            _settingsService = new SettingsService();
 
-                 playerControl.SetFavorite(false);
-                 playerControl.ContextMenuStrip = null; // remove context menu
+            cmbGender.Items.AddRange(new[] { "men", "women" });
+            cmbGender.SelectedItem = _configService.Settings.Gender;
+            System.Diagnostics.Debug.WriteLine("LOADED GENDER selectedGender: " + cmbGender.SelectedItem);
 
-                 // Remove from model
-                 var player = playerControl.PlayerData;
-                 _favoritePlayers.RemoveAll(p => p.Name == player.Name);
-                 _settingsService.SaveFavoritePlayers(_favoritePlayers);
-             }
-         }*/
+
+            _appConfig = _settingsService.LoadAppConfig();
+            // prevent unwanted save on initial load
+            _suppressGenderSave = true;
+            cmbGender.SelectedItem = _configService.Settings.Gender;
+            _suppressGenderSave = false;
+
+            cmbLanguage.SelectedItem = _appConfig.Language;
+
+
+            //cmbTeamSide.Items.AddRange(new[] { "Home", "Away" });
+            //cmbTeamSide.SelectedIndex = 0;
+
+            // Load favorite players from disk
+            _favoritePlayers = _settingsService.LoadFavoritePlayers();
+
+            // 🟢 Render favorite player controls visually
+            panelFavoritePlayers.Controls.Clear();
+            foreach (var p in _favoritePlayers)
+            {
+
+                var ctrl = new PlayerControl(p, true);
+                ctrl.Margin = new Padding(5);
+                ctrl.ContextMenuStrip = _favoritePlayerContextMenu;
+
+                panelFavoritePlayers.Controls.Add(ctrl);
+            }
+
+            // Load favorite teams from file
+            var favTeamFile = "./Data/favourite_teams.txt";
+            if (File.Exists(favTeamFile))
+            {
+                var lines = File.ReadAllLines(favTeamFile);
+                foreach (var team in lines)
+                {
+                    lstFavouriteTeams.Items.Add(team);
+                }
+            }
+
+            cmbLanguage.Items.AddRange(new[] { "en", "hr" });
+            cmbLanguage.SelectedItem = _configService.Settings.Language;
+            _localizationService.LoadLanguage(_configService.Settings.Language);
+            ApplyLocalization();
+
+            await LoadTeams();
+        }
+
 
         private void PlayerControl_MouseDown(object sender, MouseEventArgs e)
         {
@@ -107,8 +158,6 @@ namespace WorldCup.WinForms
         }
 
 
-
-
         private void PanelFavoritePlayers_DragDrop(object sender, DragEventArgs e)
         {
             if (e.Data != null && e.Data.GetData(typeof(PlayerControl)) is PlayerControl control)
@@ -125,8 +174,6 @@ namespace WorldCup.WinForms
                 _settingsService.SaveFavoritePlayers(_favoritePlayers);
             }
         }
-
-
 
 
         // 
@@ -149,55 +196,6 @@ namespace WorldCup.WinForms
             {
                 cmbFavoriteTeam.Items.Add($"{team.FifaCode} - {team.Country}");
             }
-        }
-
-
-        // starts first at program start
-        private async void Form1_Load(object sender, EventArgs e)
-        {
-            _configService = new ConfigService();
-            _teamService = new TeamService(_configService);
-            _matchService = new MatchService(_configService);
-            _settingsService = new SettingsService();
-
-            cmbGender.Items.AddRange(new[] { "men", "women" });
-            cmbGender.SelectedIndex = 0;
-
-            //cmbTeamSide.Items.AddRange(new[] { "Home", "Away" });
-            //cmbTeamSide.SelectedIndex = 0;
-
-            // Load favorite players from disk
-            _favoritePlayers = _settingsService.LoadFavoritePlayers();
-
-            // 🟢 Render favorite player controls visually
-            panelFavoritePlayers.Controls.Clear();
-            foreach (var p in _favoritePlayers)
-            {
-
-                var ctrl = new PlayerControl(p, true);
-                ctrl.Margin = new Padding(5);
-                ctrl.ContextMenuStrip = _favoritePlayerContextMenu;
-
-                panelFavoritePlayers.Controls.Add(ctrl);
-            }
-
-            // Load favorite teams from file
-            var favTeamFile = "./Data/favourite_teams.txt";
-            if (File.Exists(favTeamFile))
-            {
-                var lines = File.ReadAllLines(favTeamFile);
-                foreach (var team in lines)
-                {
-                    lstFavouriteTeams.Items.Add(team);
-                }
-            }
-
-            cmbLanguage.Items.AddRange(new[] { "en", "hr" });
-            cmbLanguage.SelectedItem = _configService.Settings.Language;
-            _localizationService.LoadLanguage(_configService.Settings.Language);
-            ApplyLocalization();
-
-            await LoadTeams();
         }
 
 
@@ -272,22 +270,16 @@ namespace WorldCup.WinForms
 
         private void cmbGender_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (_suppressGenderSave) return;
 
-        }
+            var selectedGender = cmbGender.SelectedItem?.ToString();
+            System.Diagnostics.Debug.WriteLine("selectedGender: " + selectedGender);
 
-        private void cmbFavoriteTeam_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label3_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void lstMatches_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
+            if (!string.IsNullOrEmpty(selectedGender))
+            {
+                _configService.Settings.Gender = selectedGender;
+                _configService.Save(); // persist to settings.json
+            }
         }
 
         private void favTeamAdd_Click(object sender, EventArgs e)
@@ -310,9 +302,6 @@ namespace WorldCup.WinForms
                 MessageBox.Show("This team is already in the favorite list.");
             }
         }
-
-
-
 
         private void btnRemoveFavoriteTeam_Click_Click(object sender, EventArgs e)
         {
@@ -343,32 +332,6 @@ namespace WorldCup.WinForms
                 ApplyLocalization();
 
             }
-        }
-
-
-        private void lstPlayers_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void lstFavouritePlayers_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void panelPlayers_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void panelPlayers_Paint_1(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void lblFavoritePlayer_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void btnLoadPlayers_Click(object sender, EventArgs e)
@@ -417,9 +380,62 @@ namespace WorldCup.WinForms
             }
         }
 
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            var result = MessageBox.Show("Are you sure you want to exit?", "Exit Confirmation",
+    MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+
+            if (result == DialogResult.No)
+            {
+                e.Cancel = true; // prevent closing
+            }
+        }
+
+        private void cmbFavoriteTeam_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lstMatches_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+
+        private void lstPlayers_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lstFavouritePlayers_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void panelPlayers_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void panelPlayers_Paint_1(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void lblFavoritePlayer_Click(object sender, EventArgs e)
+        {
+
+        }
+
         private void cmbTeamSide_SelectedIndexChanged(object sender, EventArgs e)
         {
 
         }
+
     }
 }

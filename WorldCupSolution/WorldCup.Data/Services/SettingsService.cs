@@ -7,6 +7,8 @@ public class SettingsService
 {
     private const string FavoritePlayersPath = "favorites.json";
     private const string FavoriteTeamPath = "favorite_team.txt";
+    private const string ConfigPath = "app_config.json";
+
 
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
@@ -44,4 +46,23 @@ public class SettingsService
     {
         File.WriteAllText(FavoriteTeamPath, fifaCode);
     }
+
+
+
+
+    public AppConfig LoadAppConfig()
+    {
+        if (!File.Exists(ConfigPath))
+            return new AppConfig(); // default if no file yet
+
+        var json = File.ReadAllText(ConfigPath);
+        return JsonSerializer.Deserialize<AppConfig>(json, _jsonOptions) ?? new AppConfig();
+    }
+
+    public void SaveAppConfig(AppConfig config)
+    {
+        var json = JsonSerializer.Serialize(config, _jsonOptions);
+        File.WriteAllText(ConfigPath, json);
+    }
+
 }

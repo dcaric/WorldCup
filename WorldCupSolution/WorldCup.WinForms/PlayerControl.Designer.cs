@@ -30,7 +30,7 @@
             // 
             // picStar
             // 
-            picStar.Location = new Point(180, 5);
+            picStar.Location = new Point(361, 9);
             picStar.Name = "picStar";
             picStar.Size = new Size(16, 16);
             picStar.SizeMode = PictureBoxSizeMode.StretchImage;
@@ -43,7 +43,7 @@
             Controls.Add(lblInfo);
             Controls.Add(picStar);
             Name = "PlayerControl";
-            Size = new Size(200, 30);
+            Size = new Size(380, 30);
             Load += PlayerControl_Load;
             ((System.ComponentModel.ISupportInitialize)picStar).EndInit();
             ResumeLayout(false);

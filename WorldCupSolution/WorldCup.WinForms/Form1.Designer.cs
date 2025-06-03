@@ -196,7 +196,7 @@
             panelPlayers.FlowDirection = FlowDirection.TopDown;
             panelPlayers.Location = new Point(21, 125);
             panelPlayers.Name = "panelPlayers";
-            panelPlayers.Size = new Size(263, 155);
+            panelPlayers.Size = new Size(410, 155);
             panelPlayers.TabIndex = 27;
             panelPlayers.WrapContents = false;
             panelPlayers.Paint += panelPlayers_Paint_1;
@@ -209,7 +209,7 @@
             panelFavoritePlayers.FlowDirection = FlowDirection.TopDown;
             panelFavoritePlayers.Location = new Point(21, 317);
             panelFavoritePlayers.Name = "panelFavoritePlayers";
-            panelFavoritePlayers.Size = new Size(263, 187);
+            panelFavoritePlayers.Size = new Size(410, 187);
             panelFavoritePlayers.TabIndex = 28;
             panelFavoritePlayers.WrapContents = false;
             // 
@@ -248,6 +248,7 @@
             Controls.Add(listOfMatches);
             Name = "Form1";
             Text = "Form1";
+            FormClosing += Form1_FormClosing;
             Load += Form1_Load;
             ResumeLayout(false);
             PerformLayout();
