@@ -14,8 +14,7 @@ public class ConfigService
         if (File.Exists(ConfigPath))
         {
             var json = File.ReadAllText(ConfigPath);
-            Settings = JsonSerializer.Deserialize<ConfigSettings>(json)
-                       ?? new ConfigSettings();
+            Settings = JsonSerializer.Deserialize<ConfigSettings>(json)  ?? new ConfigSettings();
         }
         else
         {

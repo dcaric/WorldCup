@@ -203,6 +203,8 @@ namespace WorldCup.WinForms
         {
             if (_localizationService == null) return;
 
+            System.Diagnostics.Debug.WriteLine("ApplyLocalization: title: " + _localizationService["title"]);
+
             this.Text = _localizationService["title"];
             lblGender.Text = _localizationService["gender"];
             lblLanguage.Text = _localizationService["language"];
@@ -268,7 +270,7 @@ namespace WorldCup.WinForms
         }
 
 
-        private void cmbGender_SelectedIndexChanged(object sender, EventArgs e)
+        private async void cmbGender_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (_suppressGenderSave) return;
 
@@ -280,6 +282,9 @@ namespace WorldCup.WinForms
                 _configService.Settings.Gender = selectedGender;
                 _configService.Save(); // persist to settings.json
             }
+
+            await LoadTeams();
+
         }
 
         private void favTeamAdd_Click(object sender, EventArgs e)
@@ -437,5 +442,9 @@ namespace WorldCup.WinForms
 
         }
 
+        private void lstFavouriteTeams_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

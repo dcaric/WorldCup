@@ -140,6 +140,7 @@
             lstFavouriteTeams.Name = "lstFavouriteTeams";
             lstFavouriteTeams.Size = new Size(259, 94);
             lstFavouriteTeams.TabIndex = 19;
+            lstFavouriteTeams.SelectedIndexChanged += lstFavouriteTeams_SelectedIndexChanged;
             // 
             // lblFavoriteTeam
             // 

@@ -9,21 +9,20 @@ public class MatchService
 {
     private readonly HttpClient _httpClient;
     private readonly JsonSerializerOptions _jsonOptions;
+    private readonly ConfigService _config;
 
-    public MatchService()
+    private string BaseUrl(string gender) =>
+    $"https://worldcup-vua.nullbit.hr/{gender.ToLower()}";
+
+    /*public MatchService()
     {
         _httpClient = new HttpClient();
         _jsonOptions = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
         };
-    }
+    }*/
 
-    private string BaseUrl(string gender) =>
-        $"https://worldcup-vua.nullbit.hr/{gender.ToLower()}";
-
-
-    private readonly ConfigService _config;
 
     public MatchService(ConfigService configService)
     {
@@ -34,6 +33,8 @@ public class MatchService
             PropertyNameCaseInsensitive = true
         };
     }
+
+
 
     // Get all matches
     // return is a List of Match, input parameter is gender and default is "man"
@@ -46,9 +47,9 @@ public class MatchService
 
             if (File.Exists(path))
             {
-                var json = await File.ReadAllTextAsync(path);
                 try
                 {
+                    var json = await File.ReadAllTextAsync(path);
                     return JsonSerializer.Deserialize<List<Match>>(json, _jsonOptions) ?? new();
                 }
                 catch (Exception ex)
@@ -61,11 +62,12 @@ public class MatchService
         }
 
         var url = $"{BaseUrl(gender)}/matches";
-        var response = await _httpClient.GetStringAsync(url);
-        System.Diagnostics.Debug.WriteLine("Response from API: " + response);
+        
 
         try
         {
+            var response = await _httpClient.GetStringAsync(url);
+            System.Diagnostics.Debug.WriteLine("Response from API: " + response);
             return JsonSerializer.Deserialize<List<Match>>(response, _jsonOptions) ?? new();
         }
         catch (Exception ex)
@@ -80,11 +82,12 @@ public class MatchService
     // Get matches for a specific country
     public async Task<List<Match>> GetMatchesForTeamAsync(string gender, string fifaCode)
     {
+        var url = $"{BaseUrl(gender)}/matches/country?fifa_code={fifaCode}";
+        Console.WriteLine($">>> URL: {url}");
+
         try
         {
-            var url = $"{BaseUrl(gender)}/matches/country?fifa_code={fifaCode}";
-            Console.WriteLine($">>> URL: {url}");
-
+           
             var response = await _httpClient.GetStringAsync(url);
             return JsonSerializer.Deserialize<List<Match>>(response, _jsonOptions) ?? new();
         }

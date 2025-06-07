@@ -18,6 +18,8 @@ namespace WorldCup.Data.Services
             if (File.Exists(path))
             {
                 var json = File.ReadAllText(path);
+                System.Diagnostics.Debug.WriteLine("json: " + json);
+
                 _translations = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
             }
             else
