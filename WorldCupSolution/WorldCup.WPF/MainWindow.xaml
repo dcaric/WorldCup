@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:WorldCup.WPF"
         Background="LightGray"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="1000"
+        Title="MainWindow" Height="800" Width="1000"
         Opacity="0.3">
 
 
@@ -26,8 +26,11 @@
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <!-- New row for player field -->
+
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*"/>
@@ -99,5 +102,17 @@
 
         <!-- Add to Favorites Button -->
         <Button x:Name="btnAddToFavorites" Content="Add to Favorites" Grid.Row="2" Grid.Column="2" Width="150" Margin="0,10,0,0" HorizontalAlignment="Right"/>
+
+        <!-- Player Layout on Field -->
+        <GroupBox Header="Player Layout" Grid.Row="3" Grid.ColumnSpan="3" Margin="0,10,0,0">
+            <Canvas x:Name="canvasPlayers" Background="LightGreen" Height="500">
+                <!-- Player controls will be added dynamically -->
+            </Canvas>
+        </GroupBox>
+
+
     </Grid>
+
+
+
 </Window>

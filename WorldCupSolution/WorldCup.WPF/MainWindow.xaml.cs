@@ -189,6 +189,9 @@ namespace WorldCup.WPF
             {
                 lstPlayers.Items.Add(player.Name);
             }
+
+            // Display on field
+            DisplayPlayersOnField(_allPlayersInMatch);
         }
 
         private void BtnAddToFavorites_Click(object sender, RoutedEventArgs e)
@@ -297,6 +300,29 @@ namespace WorldCup.WPF
             else
             {
                 MessageBox.Show("Could not load team info.");
+            }
+        }
+
+
+        private void DisplayPlayersOnField(List<Player> players)
+        {
+            canvasPlayers.Children.Clear();
+
+            // Dummy layout: 4 defenders, 4 midfielders, 2 attackers, 1 goalie
+            var layout = new List<Point>
+            {
+                new Point(220, 20),  // Goalie
+                new Point(50, 80), new Point(150, 80), new Point(250, 80), new Point(350, 80), // Defenders
+                new Point(50, 160), new Point(150, 160), new Point(250, 160), new Point(350, 160), // Midfield
+                new Point(150, 240), new Point(250, 240), // Attackers
+            };
+
+            for (int i = 0; i < players.Count && i < layout.Count; i++)
+            {
+                var playerControl = new PlayerControl(players[i].Name);
+                Canvas.SetLeft(playerControl, layout[i].X);
+                Canvas.SetTop(playerControl, layout[i].Y);
+                canvasPlayers.Children.Add(playerControl);
             }
         }
 
