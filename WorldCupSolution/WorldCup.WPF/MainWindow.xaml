@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WorldCup.WPF"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="1000">
+        Title="MainWindow" Height="600" Width="1000"
+        Opacity="0.3">
 
 
     <Window.Triggers>
@@ -14,7 +15,7 @@
                 <Storyboard>
                     <DoubleAnimation 
                         Storyboard.TargetProperty="Opacity"
-                        From="0" To="1" Duration="0:0:0.5"/>
+                        From="0" To="1" Duration="0:0:2"/>
                 </Storyboard>
             </BeginStoryboard>
         </EventTrigger>
