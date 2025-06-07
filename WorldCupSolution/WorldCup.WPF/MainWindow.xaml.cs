@@ -56,6 +56,8 @@ namespace WorldCup.WPF
             btnAddFavoriteTeam.Click += BtnAddFavoriteTeam_Click;
             btnRemoveFavoriteTeam.Click += BtnRemoveFavoriteTeam_Click;
             btnRemoveFavoritePlayer.Click += BtnRemoveFavoritePlayer_Click;
+            btnTeamInfo.Click += BtnTeamInfo_Click;
+
 
 
 
@@ -115,6 +117,10 @@ namespace WorldCup.WPF
             {
                 cmbFavoriteTeam.Items.Add($"{team.FifaCode} - {team.Country}");
             }
+
+            // 🔧 Ensure something is selected by default
+            if (cmbFavoriteTeam.Items.Count > 0 && cmbFavoriteTeam.SelectedIndex == -1)
+                cmbFavoriteTeam.SelectedIndex = 0;
         }
 
         private void LoadFavoriteTeams()
@@ -265,5 +271,35 @@ namespace WorldCup.WPF
                 e.Cancel = true;
             }
         }
+
+
+        private async void BtnTeamInfo_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedIndex = cmbFavoriteTeam.SelectedIndex;
+            if (selectedIndex == -1)
+            {
+                MessageBox.Show("No team selected.");
+                return;
+            }
+
+            var selected = cmbFavoriteTeam.Items[selectedIndex].ToString();
+            var fifaCode = selected.Split('-')[0].Trim();
+
+            var team = _teams.FirstOrDefault(t => t.FifaCode == fifaCode);
+            var results = await _teamService.GetTeamResultsAsync(cmbGender.SelectedItem?.ToString() ?? "men");
+            var stats = results.FirstOrDefault(r => r.FifaCode == fifaCode);
+
+            if (team != null && stats != null)
+            {
+                var infoWindow = new TeamInfoWindow(team.Country, fifaCode, stats);
+                infoWindow.ShowDialog();
+            }
+            else
+            {
+                MessageBox.Show("Could not load team info.");
+            }
+        }
+
+
     }
 }

@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WorldCup.WPF"
+        Background="LightGray"
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="1000"
         Opacity="0.3">
@@ -56,12 +57,18 @@
         <GroupBox Header="Favorite Teams" Grid.Row="1" Grid.Column="0" Margin="0,0,10,0">
             <StackPanel>
                 <ListBox x:Name="lstFavouriteTeams" Height="120" Margin="0,0,0,10"/>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+
+                <!-- Add/Remove Buttons -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,0,0,5">
                     <Button x:Name="btnAddFavoriteTeam" Content="Add Favorite Team" Width="140" Margin="0,0,10,0"/>
                     <Button x:Name="btnRemoveFavoriteTeam" Content="Remove" Width="100"/>
                 </StackPanel>
+
+                <!-- Team Info Button BELOW the other two -->
+                <Button x:Name="btnTeamInfo" Content="Team Info" Width="250" HorizontalAlignment="Left"/>
             </StackPanel>
         </GroupBox>
+
 
 
         <!-- Favorite Players List -->
