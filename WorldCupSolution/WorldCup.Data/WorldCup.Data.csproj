@@ -8,9 +8,16 @@
 
   <ItemGroup>
     <Folder Include="Helpers\" />
+    <Folder Include="Assets\" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Assets\luka_modric.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\personDefault.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Lang\lang_en.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

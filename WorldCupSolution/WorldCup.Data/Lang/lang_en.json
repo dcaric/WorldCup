@@ -12,5 +12,13 @@
     "listOfMatches": "List of Matches",
     "listOfPlayers": "List of Players",
     "noMatchesFound": "No matches found for selected team.",
-    "matchLoadError": "Error loading match data. Please try again later."
+    "matchLoadError": "Error loading match data. Please try again later.",
+    "addFavoriteTeam": "Add Favorite Team",
+    "removeFavoritePlayer": "Remove Favorite Player",
+    "teamInfo": "Team Info",
+    "favoriteTeamsHeader": "Favorite Teams",
+    "favoritePlayersHeader": "Favorite Players",
+    "matchesHeader": "Matches",
+    "playersHeader": "Players",
+    "playerLayoutHeader": "Player Layout"
 }

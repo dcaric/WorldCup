@@ -30,12 +30,14 @@
             // 
             // picStar
             // 
-            picStar.Location = new Point(361, 9);
+            picStar.InitialImage = Properties.Resources.personDefault;
+            picStar.Location = new Point(310, 0);
             picStar.Name = "picStar";
-            picStar.Size = new Size(16, 16);
+            picStar.Size = new Size(70, 63);
             picStar.SizeMode = PictureBoxSizeMode.StretchImage;
             picStar.TabIndex = 1;
             picStar.TabStop = false;
+            picStar.Click += picStar_Click;
             // 
             // PlayerControl
             // 
@@ -43,7 +45,7 @@
             Controls.Add(lblInfo);
             Controls.Add(picStar);
             Name = "PlayerControl";
-            Size = new Size(380, 30);
+            Size = new Size(380, 63);
             Load += PlayerControl_Load;
             ((System.ComponentModel.ISupportInitialize)picStar).EndInit();
             ResumeLayout(false);

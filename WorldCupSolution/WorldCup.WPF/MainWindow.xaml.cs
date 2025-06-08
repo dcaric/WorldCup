@@ -78,11 +78,23 @@ namespace WorldCup.WPF
             lblGender.Content = _localizationService["gender"];
             lblLanguage.Content = _localizationService["language"];
             lblFavoriteTeam.Content = _localizationService["favoriteTeam"];
-            lblFavoritePlayer.Content = _localizationService["favoritePlayer"];
+
             btnLoadMatches.Content = _localizationService["loadMatches"];
-            btnAddToFavorites.Content = _localizationService["addToFavorites"];
+            btnLoadPlayers.Content = _localizationService["loadPlayers"];
+            btnAddFavoriteTeam.Content = _localizationService["addFavoriteTeam"];
             btnRemoveFavoriteTeam.Content = _localizationService["remove"];
+            btnRemoveFavoritePlayer.Content = _localizationService["removeFavoritePlayer"];
+            btnAddToFavorites.Content = _localizationService["addToFavorites"];
+            btnTeamInfo.Content = _localizationService["teamInfo"];
+
+            // Use the correct x:Name prefixes from your XAML (grp instead of gb)
+            grpFavoriteTeams.Header = _localizationService["favoriteTeamsHeader"];
+            grpFavoritePlayers.Header = _localizationService["favoritePlayersHeader"];
+            grpMatches.Header = _localizationService["matchesHeader"];
+            grpPlayers.Header = _localizationService["playersHeader"];
+            grpPlayerLayout.Header = _localizationService["playerLayoutHeader"];
         }
+
 
         private void CmbGender_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -326,6 +338,9 @@ namespace WorldCup.WPF
             }
         }
 
+        private void btnRemoveFavoriteTeam_Click_1(object sender, RoutedEventArgs e)
+        {
 
+        }
     }
 }
