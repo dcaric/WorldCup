@@ -47,7 +47,14 @@ namespace WorldCup.WinForms
             panelPlayers.DragDrop += PanelPlayers_DragDrop;
             panelFavoritePlayers.DragDrop += PanelFavoritePlayers_DragDrop;
 
+            this.DragEnter += MainForm_DragEnter;
+            this.DragDrop += MainForm_DragDrop;
+
         }
+
+ 
+
+
 
         // starts first at program start
         private async void Form1_Load(object sender, EventArgs e)
@@ -111,6 +118,8 @@ namespace WorldCup.WinForms
 
         private void PlayerControl_MouseDown(object sender, MouseEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine($"MOUSE DOWN e {e}");
+
             if (e.Button == MouseButtons.Left)
             {
                 this.DoDragDrop(this, DragDropEffects.Move);
@@ -120,6 +129,8 @@ namespace WorldCup.WinForms
 
         private void Panel_DragEnter(object sender, DragEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine($"DRAG ENTER e {e}");
+
             if (e.Data.GetDataPresent(typeof(PlayerControl)))
                 e.Effect = DragDropEffects.Move;
             else
@@ -128,6 +139,8 @@ namespace WorldCup.WinForms
 
         private void PanelPlayers_DragDrop(object sender, DragEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine($"DRAG DROP e {e}");
+
             if (e.Data != null && e.Data.GetData(typeof(PlayerControl)) is PlayerControl control)
             {
                 // Make sure the player originally belongs to this match
@@ -154,17 +167,22 @@ namespace WorldCup.WinForms
                 // Update favorite list
                 _favoritePlayers.RemoveAll(p => p.Name == player.Name);
                 _settingsService.SaveFavoritePlayers(_favoritePlayers);
+                loadPlayers();
+
             }
         }
 
 
         private void PanelFavoritePlayers_DragDrop(object sender, DragEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine($"DRAG DROP FORM FAVOURITE e {e}");
+
             if (e.Data != null && e.Data.GetData(typeof(PlayerControl)) is PlayerControl control)
             {
                 panelPlayers.Controls.Remove(control);
                 panelFavoritePlayers.Controls.Add(control);
                 control.ContextMenuStrip = _favoritePlayerContextMenu;
+                control.SetFavorite(true);
 
                 // Update favorite list
                 var player = control.PlayerData;
@@ -175,6 +193,37 @@ namespace WorldCup.WinForms
             }
         }
 
+
+        private void MainForm_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(typeof(PlayerControl)))
+                e.Effect = DragDropEffects.Move;
+            else
+                e.Effect = DragDropEffects.None;
+        }
+
+        private void MainForm_DragDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data != null && e.Data.GetData(typeof(PlayerControl)) is PlayerControl control)
+            {
+                var player = control.PlayerData;
+
+                // Check if it's currently in favorites
+                if (control.IsFavorite)
+                {
+                    panelFavoritePlayers.Controls.Remove(control);
+
+                    control.SetFavorite(false);
+                    control.ContextMenuStrip = null;
+
+                    _favoritePlayers.RemoveAll(p => p.Name == player.Name);
+                    _settingsService.SaveFavoritePlayers(_favoritePlayers);
+
+                    MessageBox.Show($"{player.Name} removed from favorites.");
+                    loadPlayers();
+                }
+            }
+        }
 
         // 
         private async Task LoadTeams()
@@ -341,6 +390,11 @@ namespace WorldCup.WinForms
 
         private void btnLoadPlayers_Click(object sender, EventArgs e)
         {
+            loadPlayers();
+        }
+
+        private void loadPlayers()
+        {
             var selectedIndex = lstMatches.SelectedIndex;
             if (selectedIndex == -1) return;
 
@@ -348,7 +402,16 @@ namespace WorldCup.WinForms
 
             TeamStatistics stats = null;
 
+            // detect does selected team belongs to HomeTeam or AwayTeam
             stats = selectedMatch.HomeTeamStatistics;
+            var fifaCode = cmbFavoriteTeam.SelectedItem?.ToString().Split('-')[0].Trim();
+            System.Diagnostics.Debug.WriteLine($"fifaCode ${fifaCode}");
+
+            if (selectedMatch.AwayTeam.Code == fifaCode)
+            {
+                stats = selectedMatch.AwayTeamStatistics;
+            }
+
             /*
             if (cmbTeamSide.SelectedItem?.ToString() == "Home")
             {
