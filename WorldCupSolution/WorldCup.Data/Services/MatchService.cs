@@ -87,7 +87,8 @@ public class MatchService
 
         try
         {
-           
+            System.Diagnostics.Debug.WriteLine("Path: " + url);
+
             var response = await _httpClient.GetStringAsync(url);
             return JsonSerializer.Deserialize<List<Match>>(response, _jsonOptions) ?? new();
         }

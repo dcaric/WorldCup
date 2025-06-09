@@ -103,6 +103,7 @@ namespace WorldCup.WPF
             {
                 _configService.Settings.Gender = selectedGender;
                 _configService.Save();
+                lstPlayers.Items.Clear();
                 _ = LoadTeams();
             }
         }
@@ -188,6 +189,14 @@ namespace WorldCup.WPF
 
             var selectedMatch = _matches[selectedIndex];
             var stats = selectedMatch.HomeTeamStatistics;
+            var fifaCode = cmbFavoriteTeam.SelectedItem?.ToString().Split('-')[0].Trim();
+            System.Diagnostics.Debug.WriteLine($"fifaCode ${fifaCode}");
+
+            if (selectedMatch.AwayTeam.Code == fifaCode)
+            {
+                stats = selectedMatch.AwayTeamStatistics;
+            }
+
             if (stats == null)
             {
                 MessageBox.Show("No statistics available.");
@@ -213,7 +222,12 @@ namespace WorldCup.WPF
 
             var playerName = lstPlayers.SelectedItem.ToString();
             var player = _allPlayersInMatch.FirstOrDefault(p => p.Name == playerName);
-            if (player == null || _favoritePlayers.Any(p => p.Name == player.Name)) return;
+            if (player == null || _favoritePlayers.Any(p => p.Name == player.Name))
+            {
+                MessageBox.Show("This player is already in the favorite list.");
+                return;
+
+            }
 
             _favoritePlayers.Add(player);
             _settingsService.SaveFavoritePlayers(_favoritePlayers);
@@ -320,13 +334,14 @@ namespace WorldCup.WPF
         {
             canvasPlayers.Children.Clear();
 
-            // Dummy layout: 4 defenders, 4 midfielders, 2 attackers, 1 goalie
+            // Dummy layout:
             var layout = new List<Point>
             {
                 new Point(220, 20),  // Goalie
-                new Point(50, 80), new Point(150, 80), new Point(250, 80), new Point(350, 80), // Defenders
-                new Point(50, 160), new Point(150, 160), new Point(250, 160), new Point(350, 160), // Midfield
-                new Point(150, 240), new Point(250, 240), // Attackers
+                new Point(50, 160), new Point(150, 160), 
+                new Point(250, 160), new Point(350, 160), 
+                new Point(50, 80), new Point(150, 80), new Point(250, 80), new Point(350, 80), 
+                new Point(150, 240), new Point(250, 240),
             };
 
             for (int i = 0; i < players.Count && i < layout.Count; i++)
@@ -338,9 +353,5 @@ namespace WorldCup.WPF
             }
         }
 
-        private void btnRemoveFavoriteTeam_Click_1(object sender, RoutedEventArgs e)
-        {
-
-        }
     }
 }
