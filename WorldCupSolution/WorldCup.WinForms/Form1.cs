@@ -31,7 +31,7 @@ namespace WorldCup.WinForms
         {
             InitializeComponent();
             _favoritePlayerContextMenu = new ContextMenuStrip();
-            // _favoritePlayerContextMenu.Items.Add("Remove from Favorites", null, RemoveFromFavorites_Click);
+            _favoritePlayerContextMenu.Items.Add("Remove from Favorites", null, RemoveFromFavorites_Click);
 
 
             _localizationService = new LocalizationService();
@@ -456,6 +456,32 @@ namespace WorldCup.WinForms
             if (result == DialogResult.No)
             {
                 e.Cancel = true; // prevent closing
+            }
+        }
+
+        private void RemoveFromFavorites_Click(object sender, EventArgs e)
+        {
+            // The 'sender' is the ToolStripMenuItem that was clicked.
+            // Its 'Owner' property will be the ContextMenuStrip.
+            // The 'SourceControl' property of the ContextMenuStrip will be the PlayerControl that was right-clicked.
+            if (sender is ToolStripItem menuItem && menuItem.Owner is ContextMenuStrip contextMenu)
+            {
+                if (contextMenu.SourceControl is PlayerControl playerControl)
+                {
+                    var player = playerControl.PlayerData;
+
+                    // Perform the same logic as when dragging a player out of favorites
+                    panelFavoritePlayers.Controls.Remove(playerControl);
+
+                    playerControl.SetFavorite(false);
+                    playerControl.ContextMenuStrip = null; // Remove context menu as it's no longer a favorite
+
+                    _favoritePlayers.RemoveAll(p => p.Name == player.Name);
+                    _settingsService.SaveFavoritePlayers(_favoritePlayers);
+
+                    MessageBox.Show($"{player.Name} removed from favorites via context menu.");
+                    loadPlayers(); // Refresh the main players panel
+                }
             }
         }
 

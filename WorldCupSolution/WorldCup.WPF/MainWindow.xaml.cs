@@ -6,6 +6,7 @@ using System.Windows.Markup;
 using WorldCup.Data.Models;
 using WorldCup.Data.Services;
 using System.IO;
+using System.Windows.Media.Animation; // Needed for DoubleAnimation
 
 
 namespace WorldCup.WPF
@@ -17,6 +18,7 @@ namespace WorldCup.WPF
         private MatchService _matchService;
         private SettingsService _settingsService;
         private LocalizationService _localizationService;
+        private ContextMenu _favoritePlayerContextMenu;
 
         private List<Team> _teams = new();
         private List<Match> _matches = new();
@@ -50,16 +52,24 @@ namespace WorldCup.WPF
 
             btnLoadMatches.Click += BtnLoadMatches_Click;
             btnLoadPlayers.Click += BtnLoadPlayers_Click;
-            btnAddToFavorites.Click += BtnAddToFavorites_Click;
+            //btnAddToFavorites.Click += BtnAddToFavorites_Click;
             cmbGender.SelectionChanged += CmbGender_SelectionChanged;
             cmbLanguage.SelectionChanged += CmbLanguage_SelectionChanged;
             btnAddFavoriteTeam.Click += BtnAddFavoriteTeam_Click;
             btnRemoveFavoriteTeam.Click += BtnRemoveFavoriteTeam_Click;
-            btnRemoveFavoritePlayer.Click += BtnRemoveFavoritePlayer_Click;
+            //btnRemoveFavoritePlayer.Click += BtnRemoveFavoritePlayer_Click;
             btnTeamInfo.Click += BtnTeamInfo_Click;
 
 
+            // Instantiate the ContextMenu
+            _favoritePlayerContextMenu = new ContextMenu();
 
+            // Create a MenuItem and add it to the ContextMenu's Items collection
+            MenuItem removeItem = new MenuItem();
+            removeItem.Header = "Remove from Favorites"; // Set the text displayed in the menu
+            removeItem.Click += RemoveFromFavorites_Click; // Attach the event handler for when the item is clicked
+
+            _favoritePlayerContextMenu.Items.Add(removeItem);
 
             this.Closing += MainWindow_Closing;
             this.Loaded += MainWindow_Loaded;
@@ -83,8 +93,8 @@ namespace WorldCup.WPF
             btnLoadPlayers.Content = _localizationService["loadPlayers"];
             btnAddFavoriteTeam.Content = _localizationService["addFavoriteTeam"];
             btnRemoveFavoriteTeam.Content = _localizationService["remove"];
-            btnRemoveFavoritePlayer.Content = _localizationService["removeFavoritePlayer"];
-            btnAddToFavorites.Content = _localizationService["addToFavorites"];
+            //btnRemoveFavoritePlayer.Content = _localizationService["removeFavoritePlayer"];
+            //btnAddToFavorites.Content = _localizationService["addToFavorites"];
             btnTeamInfo.Content = _localizationService["teamInfo"];
 
             // Use the correct x:Name prefixes from your XAML (grp instead of gb)
@@ -122,8 +132,15 @@ namespace WorldCup.WPF
 
         private async Task LoadTeams()
         {
-            var gender = cmbGender.SelectedItem?.ToString() ?? "men";
-            _teams = await _teamService.GetTeamsAsync(gender);
+            try
+            {
+                var gender = cmbGender.SelectedItem?.ToString() ?? "men";
+                _teams = await _teamService.GetTeamsAsync(gender);
+            } catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return;
+            }
 
             cmbFavoriteTeam.Items.Clear();
             foreach (var team in _teams)
@@ -152,10 +169,22 @@ namespace WorldCup.WPF
         {
             _favoritePlayers = _settingsService.LoadFavoritePlayers();
             lstFavoritePlayers.Items.Clear();
-            foreach (var player in _favoritePlayers)
+            /*foreach (var player in _favoritePlayers)
             {
                 lstFavoritePlayers.Items.Add(player.Name);
+            }*/
+            
+            foreach (var player in _favoritePlayers)
+            {
+                // Format the player information as a string
+                string playerInfo = $"{player.ShirtNumber} - {player.Name} ({player.Position})";
+                if (player.Captain)
+                {
+                    playerInfo += " 🧢"; // Add captain emoji if applicable
+                }
+                lstFavoritePlayers.Items.Add(playerInfo);
             }
+
         }
 
         private async void BtnLoadMatches_Click(object sender, RoutedEventArgs e)
@@ -169,9 +198,9 @@ namespace WorldCup.WPF
             {
                 _matches = await _matchService.GetMatchesForTeamAsync(gender, fifaCode);
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show(_localizationService["matchLoadError"]);
+                MessageBox.Show(ex.Message);
                 return;
             }
 
@@ -206,9 +235,16 @@ namespace WorldCup.WPF
             _allPlayersInMatch = stats.StartingEleven.Concat(stats.Substitutes).ToList();
 
             lstPlayers.Items.Clear();
+            // Iterate through all players (starting eleven + substitutes)
             foreach (var player in _allPlayersInMatch)
             {
-                lstPlayers.Items.Add(player.Name);
+                // Format the player information as a string
+                string playerInfo = $"{player.ShirtNumber} - {player.Name} ({player.Position})";
+                if (player.Captain)
+                {
+                    playerInfo += " 🧢"; // Add captain emoji if applicable
+                }
+                lstPlayers.Items.Add(playerInfo);
             }
 
             // Display on field
@@ -304,6 +340,7 @@ namespace WorldCup.WPF
 
         private async void BtnTeamInfo_Click(object sender, RoutedEventArgs e)
         {
+
             var selectedIndex = cmbFavoriteTeam.SelectedIndex;
             if (selectedIndex == -1)
             {
@@ -315,43 +352,143 @@ namespace WorldCup.WPF
             var fifaCode = selected.Split('-')[0].Trim();
 
             var team = _teams.FirstOrDefault(t => t.FifaCode == fifaCode);
-            var results = await _teamService.GetTeamResultsAsync(cmbGender.SelectedItem?.ToString() ?? "men");
-            var stats = results.FirstOrDefault(r => r.FifaCode == fifaCode);
-
-            if (team != null && stats != null)
+            try
             {
-                var infoWindow = new TeamInfoWindow(team.Country, fifaCode, stats);
-                infoWindow.ShowDialog();
+                var results = await _teamService.GetTeamResultsAsync(cmbGender.SelectedItem?.ToString() ?? "men");
+                var stats = results.FirstOrDefault(r => r.FifaCode == fifaCode);
+
+                if (team != null && stats != null)
+                {
+                    var infoWindow = new TeamInfoWindow(team.Country, fifaCode, stats);
+                    infoWindow.ShowDialog();
+                }
+                else
+                {
+                    MessageBox.Show("Could not load team info.");
+                }
+            } catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return;
+            }
+        }
+
+
+        private void RemoveFromFavorites_Click(object sender, RoutedEventArgs e)
+        {
+            // Find the MenuItem that was clicked
+            MenuItem menuItem = sender as MenuItem;
+
+            // Get the ContextMenu that owns this MenuItem
+            ContextMenu contextMenu = menuItem.Parent as ContextMenu;
+
+            // The PlacementTarget of the ContextMenu is the element it was displayed on.
+            // If it was set on ListBoxItem (Option A), the PlacementTarget is the ListBoxItem.
+            // If it was set on the ListBox (Option B), the PlacementTarget is the ListBox itself.
+            if (contextMenu != null)
+            {
+                // For Option A (ItemContainerStyle binding):
+                ListBoxItem clickedItem = contextMenu.PlacementTarget as ListBoxItem;
+                if (clickedItem != null && clickedItem.Content is string playerName)
+                {
+                    RemovePlayerFromFavoritesLogic(playerName);
+                }
+                // For Option B (ContextMenu directly on ListBox), you'd need to find the selected item:
+                else if (contextMenu.PlacementTarget is ListBox listBox && listBox.SelectedItem is string selectedPlayerName)
+                {
+                    RemovePlayerFromFavoritesLogic(selectedPlayerName);
+                }
+            }
+        }
+
+        // 🟢 Helper method to encapsulate the removal logic
+        private void RemovePlayerFromFavoritesLogic(string fullPlayerStringFromListBox)
+        {
+            System.Diagnostics.Debug.WriteLine($"Attempting to remove player from list using: {fullPlayerStringFromListBox}");
+
+            // Use RemoveAll with a predicate that checks if the fullPlayerStringFromListBox
+            // contains the Name of any player in the _favoritePlayers list.
+            // We'll iterate the _favoritePlayers list to find the actual Player object to remove.
+
+            Player playerToRemove = null;
+
+            // Find the player object in the _favoritePlayers list whose name is contained
+            // within the fullPlayerStringFromListBox
+            foreach (var favPlayer in _favoritePlayers)
+            {
+                // Case-insensitive comparison is often good for names
+                if (fullPlayerStringFromListBox.Contains(favPlayer.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    playerToRemove = favPlayer;
+                    break; // Found the player, no need to continue searching
+                }
+            }
+
+            System.Diagnostics.Debug.WriteLine($"Player found to remove: {playerToRemove?.Name ?? "None"}");
+            System.Diagnostics.Debug.WriteLine($"Before removal, favorite players count: {_favoritePlayers.Count}");
+
+            if (playerToRemove != null)
+            {
+                _favoritePlayers.Remove(playerToRemove); // This removes the actual object instance
+                System.Diagnostics.Debug.WriteLine($"After removal, favorite players count: {_favoritePlayers.Count}");
+
+                _settingsService.SaveFavoritePlayers(_favoritePlayers);
+                LoadFavoritePlayers(); // Refresh UI
+                MessageBox.Show($"{playerToRemove.Name} removed from favorites.");
             }
             else
             {
-                MessageBox.Show("Could not load team info.");
+                MessageBox.Show($"Player matching '{fullPlayerStringFromListBox}' not found in favorites.");
             }
         }
+
 
 
         private void DisplayPlayersOnField(List<Player> players)
         {
             canvasPlayers.Children.Clear();
 
-            // Dummy layout:
+            // Dummy layout
             var layout = new List<Point>
-            {
-                new Point(220, 20),  // Goalie
-                new Point(50, 160), new Point(150, 160), 
-                new Point(250, 160), new Point(350, 160), 
-                new Point(50, 80), new Point(150, 80), new Point(250, 80), new Point(350, 80), 
-                new Point(150, 240), new Point(250, 240),
-            };
+    {
+        new Point(220, 20),  // Goalie
+        new Point(50, 160), new Point(150, 160), new Point(250, 160), new Point(350, 160),
+        new Point(50, 80), new Point(150, 80), new Point(250, 80), new Point(350, 80),
+        new Point(150, 240), new Point(250, 240),
+    };
 
             for (int i = 0; i < players.Count && i < layout.Count; i++)
             {
-                var playerControl = new PlayerControl(players[i].Name);
+                var playerControl = new PlayerControl(players[i].Name)
+                {
+                    Opacity = 0 // Start invisible
+                };
+
                 Canvas.SetLeft(playerControl, layout[i].X);
                 Canvas.SetTop(playerControl, layout[i].Y);
                 canvasPlayers.Children.Add(playerControl);
+
+                // Fade-in animation
+                var fadeIn = new DoubleAnimation
+                {
+                    From = 0,
+                    To = 1,
+                    Duration = TimeSpan.FromSeconds(0.5),
+                    BeginTime = TimeSpan.FromSeconds(i * 0.5) // delay each by 0.5 seconds
+                };
+
+                // Apply animation to the control
+                Storyboard.SetTarget(fadeIn, playerControl);
+                Storyboard.SetTargetProperty(fadeIn, new PropertyPath("Opacity"));
+
+                var storyboard = new Storyboard();
+                storyboard.Children.Add(fadeIn);
+                storyboard.Begin();
             }
         }
+
+
+
 
     }
 }
