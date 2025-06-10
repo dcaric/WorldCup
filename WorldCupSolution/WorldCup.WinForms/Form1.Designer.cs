@@ -30,22 +30,19 @@
         {
             listOfMatches = new Label();
             listOfPlayers = new Label();
-            cmbGender = new ComboBox();
             cmbFavoriteTeam = new ComboBox();
             btnLoadMatches = new Button();
             lstMatches = new ListBox();
-            lblGender = new Label();
             Country = new Label();
             lblFavoritePlayer = new Label();
             lstFavouriteTeams = new ListBox();
             lblFavoriteTeam = new Label();
             favTeamAdd = new Button();
             btnRemoveFavoriteTeam = new Button();
-            cmbLanguage = new ComboBox();
-            lblLanguage = new Label();
             panelPlayers = new FlowLayoutPanel();
             panelFavoritePlayers = new FlowLayoutPanel();
             btnLoadPlayers = new Button();
+            btnSettings = new Button();
             SuspendLayout();
             // 
             // listOfMatches
@@ -65,15 +62,6 @@
             listOfPlayers.Size = new Size(79, 15);
             listOfPlayers.TabIndex = 7;
             listOfPlayers.Text = "List of players\n";
-            // 
-            // cmbGender
-            // 
-            cmbGender.FormattingEnabled = true;
-            cmbGender.Location = new Point(79, 33);
-            cmbGender.Name = "cmbGender";
-            cmbGender.Size = new Size(121, 23);
-            cmbGender.TabIndex = 8;
-            cmbGender.SelectedIndexChanged += cmbGender_SelectedIndexChanged;
             // 
             // cmbFavoriteTeam
             // 
@@ -103,16 +91,6 @@
             lstMatches.Size = new Size(259, 94);
             lstMatches.TabIndex = 12;
             lstMatches.SelectedIndexChanged += lstMatches_SelectedIndexChanged;
-            // 
-            // lblGender
-            // 
-            lblGender.AutoSize = true;
-            lblGender.Location = new Point(79, 15);
-            lblGender.Name = "lblGender";
-            lblGender.Size = new Size(45, 15);
-            lblGender.TabIndex = 14;
-            lblGender.Text = "Gender";
-            lblGender.Click += label3_Click;
             // 
             // Country
             // 
@@ -171,24 +149,6 @@
             btnRemoveFavoriteTeam.UseVisualStyleBackColor = true;
             btnRemoveFavoriteTeam.Click += btnRemoveFavoriteTeam_Click_Click;
             // 
-            // cmbLanguage
-            // 
-            cmbLanguage.FormattingEnabled = true;
-            cmbLanguage.Location = new Point(817, 33);
-            cmbLanguage.Name = "cmbLanguage";
-            cmbLanguage.Size = new Size(59, 23);
-            cmbLanguage.TabIndex = 24;
-            cmbLanguage.SelectedIndexChanged += cmbLanguage_SelectedIndexChanged;
-            // 
-            // lblLanguage
-            // 
-            lblLanguage.AutoSize = true;
-            lblLanguage.Location = new Point(817, 10);
-            lblLanguage.Name = "lblLanguage";
-            lblLanguage.Size = new Size(59, 15);
-            lblLanguage.TabIndex = 25;
-            lblLanguage.Text = "Language";
-            // 
             // panelPlayers
             // 
             panelPlayers.AllowDrop = true;
@@ -224,28 +184,35 @@
             btnLoadPlayers.UseVisualStyleBackColor = true;
             btnLoadPlayers.Click += btnLoadPlayers_Click;
             // 
+            // btnSettings
+            // 
+            btnSettings.Location = new Point(784, 500);
+            btnSettings.Name = "btnSettings";
+            btnSettings.Size = new Size(75, 23);
+            btnSettings.TabIndex = 30;
+            btnSettings.Text = "Settings";
+            btnSettings.UseVisualStyleBackColor = true;
+            btnSettings.Click += btnSettings_Click;
+            // 
             // Form1
             // 
             AllowDrop = true;
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(888, 539);
+            Controls.Add(btnSettings);
             Controls.Add(btnLoadPlayers);
             Controls.Add(panelFavoritePlayers);
             Controls.Add(panelPlayers);
-            Controls.Add(lblLanguage);
-            Controls.Add(cmbLanguage);
             Controls.Add(btnRemoveFavoriteTeam);
             Controls.Add(favTeamAdd);
             Controls.Add(lblFavoriteTeam);
             Controls.Add(lstFavouriteTeams);
             Controls.Add(lblFavoritePlayer);
             Controls.Add(Country);
-            Controls.Add(lblGender);
             Controls.Add(lstMatches);
             Controls.Add(btnLoadMatches);
             Controls.Add(cmbFavoriteTeam);
-            Controls.Add(cmbGender);
             Controls.Add(listOfPlayers);
             Controls.Add(listOfMatches);
             Name = "Form1";
@@ -259,21 +226,18 @@
         #endregion
         private Label listOfMatches;
         private Label listOfPlayers;
-        private ComboBox cmbGender;
         private ComboBox cmbFavoriteTeam;
         private Button btnLoadMatches;
         private ListBox lstMatches;
-        private Label lblGender;
         private Label Country;
         private Label lblFavoritePlayer;
         private ListBox lstFavouriteTeams;
         private Label lblFavoriteTeam;
         private Button favTeamAdd;
         private Button btnRemoveFavoriteTeam;
-        private ComboBox cmbLanguage;
-        private Label lblLanguage;
         private FlowLayoutPanel panelPlayers;
         private FlowLayoutPanel panelFavoritePlayers;
         private Button btnLoadPlayers;
+        private Button btnSettings;
     }
 }

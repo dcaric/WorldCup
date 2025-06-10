@@ -52,7 +52,7 @@ namespace WorldCup.WinForms
 
         }
 
- 
+
 
 
 
@@ -64,18 +64,16 @@ namespace WorldCup.WinForms
             _matchService = new MatchService(_configService);
             _settingsService = new SettingsService();
 
-            cmbGender.Items.AddRange(new[] { "men", "women" });
-            cmbGender.SelectedItem = _configService.Settings.Gender;
-            System.Diagnostics.Debug.WriteLine("LOADED GENDER selectedGender: " + cmbGender.SelectedItem);
+            //cmbGender.Items.AddRange(new[] { "men", "women" });
+            // cmbGender.SelectedItem = _configService.Settings.Gender;
 
 
             _appConfig = _settingsService.LoadAppConfig();
             // prevent unwanted save on initial load
-            _suppressGenderSave = true;
-            cmbGender.SelectedItem = _configService.Settings.Gender;
-            _suppressGenderSave = false;
+            //_suppressGenderSave = true;
+            //cmbGender.SelectedItem = _configService.Settings.Gender;
+            //_suppressGenderSave = false;
 
-            cmbLanguage.SelectedItem = _appConfig.Language;
 
 
             //cmbTeamSide.Items.AddRange(new[] { "Home", "Away" });
@@ -107,8 +105,8 @@ namespace WorldCup.WinForms
                 }
             }
 
-            cmbLanguage.Items.AddRange(new[] { "en", "hr" });
-            cmbLanguage.SelectedItem = _configService.Settings.Language;
+            //cmbLanguage.Items.AddRange(new[] { "en", "hr" });
+            //cmbLanguage.SelectedItem = _configService.Settings.Language;
             _localizationService.LoadLanguage(_configService.Settings.Language);
             ApplyLocalization();
 
@@ -228,7 +226,8 @@ namespace WorldCup.WinForms
         // 
         private async Task LoadTeams()
         {
-            var gender = cmbGender.SelectedItem?.ToString() ?? "men";
+            _configService = new ConfigService();
+            var gender = _configService.Settings.Gender;
 
             try
             {
@@ -250,13 +249,15 @@ namespace WorldCup.WinForms
 
         private void ApplyLocalization()
         {
+            System.Diagnostics.Debug.WriteLine("ApplyLocalization");
+
             if (_localizationService == null) return;
 
             System.Diagnostics.Debug.WriteLine("ApplyLocalization: title: " + _localizationService["title"]);
 
             this.Text = _localizationService["title"];
-            lblGender.Text = _localizationService["gender"];
-            lblLanguage.Text = _localizationService["language"];
+            //lblGender.Text = _localizationService["gender"];
+            //lblLanguage.Text = _localizationService["language"];
             lblFavoriteTeam.Text = _localizationService["favoriteTeam"];
             lblFavoritePlayer.Text = _localizationService["favoritePlayer"];
             btnLoadMatches.Text = _localizationService["loadMatches"];
@@ -275,8 +276,8 @@ namespace WorldCup.WinForms
         {
             // fetch from cmbGender value, converts into string and in
             // case nothing is found takes "man"
-            var gender = cmbGender.SelectedItem?.ToString() ?? "men";
-            //MessageBox.Show($"gender: {gender}");
+            _configService = new ConfigService();
+            var gender = _configService.Settings.Gender;
 
             // takes from cmbFavoriteTeam value
             var selectedTeam = cmbFavoriteTeam.SelectedItem?.ToString();
@@ -321,6 +322,7 @@ namespace WorldCup.WinForms
 
         private async void cmbGender_SelectedIndexChanged(object sender, EventArgs e)
         {
+            /*
             if (_suppressGenderSave) return;
 
             var selectedGender = cmbGender.SelectedItem?.ToString();
@@ -333,7 +335,7 @@ namespace WorldCup.WinForms
             }
 
             await LoadTeams();
-
+            */
         }
 
         private void favTeamAdd_Click(object sender, EventArgs e)
@@ -376,7 +378,7 @@ namespace WorldCup.WinForms
 
         private void cmbLanguage_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var selectedLanguage = cmbLanguage.SelectedItem?.ToString();
+            /*var selectedLanguage = cmbLanguage.SelectedItem?.ToString();
             if (!string.IsNullOrEmpty(selectedLanguage))
             {
                 _configService.Settings.Language = selectedLanguage;
@@ -385,7 +387,7 @@ namespace WorldCup.WinForms
                 _localizationService.LoadLanguage(selectedLanguage);
                 ApplyLocalization();
 
-            }
+            }*/
         }
 
         private void btnLoadPlayers_Click(object sender, EventArgs e)
@@ -534,6 +536,25 @@ namespace WorldCup.WinForms
         private void lstFavouriteTeams_SelectedIndexChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private async void btnSettings_Click(object sender, EventArgs e)
+        {
+            using (var form = new SettingsForm())
+            {
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    // refresh UI
+                    System.Diagnostics.Debug.WriteLine("REFRESH UI");
+
+
+                    _configService = new ConfigService();
+                    _localizationService = new LocalizationService();
+                    _localizationService.LoadLanguage(_configService.Settings.Language);
+                    ApplyLocalization();
+                    await LoadTeams();
+                }
+            }
         }
     }
 }

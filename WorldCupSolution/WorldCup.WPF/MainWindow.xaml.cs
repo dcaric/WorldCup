@@ -452,8 +452,8 @@ namespace WorldCup.WPF
             var layout = new List<Point>
     {
         new Point(220, 20),  // Goalie
-        new Point(50, 160), new Point(150, 160), new Point(250, 160), new Point(350, 160),
         new Point(50, 80), new Point(150, 80), new Point(250, 80), new Point(350, 80),
+        new Point(50, 160), new Point(150, 160), new Point(250, 160), new Point(350, 160),
         new Point(150, 240), new Point(250, 240),
     };
 
