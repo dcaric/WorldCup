@@ -12,6 +12,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Assets\field.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Assets\luka_modric.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

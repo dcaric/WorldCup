@@ -1,11 +1,11 @@
 ﻿<Window x:Class="WorldCup.WPF.TeamInfoWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Team Info" Height="300" Width="400"
+        Title="Team Info" Height="300" Width="300"
         WindowStartupLocation="CenterScreen"
-        AllowsTransparency="True"
-        Background="LightGreen"
-        WindowStyle="None"
+        AllowsTransparency="False"
+        Background="LightBlue"
+        WindowStyle="SingleBorderWindow"
         Opacity="0">
 
     <Window.Triggers>

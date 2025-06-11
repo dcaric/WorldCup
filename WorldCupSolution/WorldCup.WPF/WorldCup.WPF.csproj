@@ -12,4 +12,10 @@
     <ProjectReference Include="..\WorldCup.Data\WorldCup.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Assets\field.jpg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
