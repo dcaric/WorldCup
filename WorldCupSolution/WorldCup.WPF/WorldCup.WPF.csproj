@@ -9,13 +9,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assets\field.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\WorldCup.Data\WorldCup.Data.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Assets\field.jpg">
+    <Resource Include="Assets\field.jpg">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
+    </Resource>
   </ItemGroup>
 
 </Project>

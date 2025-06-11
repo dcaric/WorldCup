@@ -154,10 +154,12 @@
           HorizontalAlignment="Stretch">
             <Grid>
                 <Canvas x:Name="canvasPlayers"
-                        Background="LightGreen"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch">
-                 </Canvas>
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch">
+                    <Canvas.Background>
+                        <ImageBrush ImageSource="Assets/field.jpg" Stretch="Fill"/>
+                    </Canvas.Background>
+                </Canvas>
             </Grid>
         </GroupBox>
 

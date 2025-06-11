@@ -43,6 +43,7 @@
             panelFavoritePlayers = new FlowLayoutPanel();
             btnLoadPlayers = new Button();
             btnSettings = new Button();
+            cmbShowTeam = new ComboBox();
             SuspendLayout();
             // 
             // listOfMatches
@@ -176,9 +177,9 @@
             // 
             // btnLoadPlayers
             // 
-            btnLoadPlayers.Location = new Point(21, 96);
+            btnLoadPlayers.Location = new Point(21, 93);
             btnLoadPlayers.Name = "btnLoadPlayers";
-            btnLoadPlayers.Size = new Size(128, 23);
+            btnLoadPlayers.Size = new Size(128, 26);
             btnLoadPlayers.TabIndex = 29;
             btnLoadPlayers.Text = "Load players";
             btnLoadPlayers.UseVisualStyleBackColor = true;
@@ -194,12 +195,22 @@
             btnSettings.UseVisualStyleBackColor = true;
             btnSettings.Click += btnSettings_Click;
             // 
+            // cmbShowTeam
+            // 
+            cmbShowTeam.FormattingEnabled = true;
+            cmbShowTeam.Location = new Point(155, 96);
+            cmbShowTeam.Name = "cmbShowTeam";
+            cmbShowTeam.Size = new Size(121, 23);
+            cmbShowTeam.TabIndex = 31;
+            cmbShowTeam.SelectedIndexChanged += cmbShowTeam_SelectedIndexChanged;
+            // 
             // Form1
             // 
             AllowDrop = true;
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(888, 539);
+            Controls.Add(cmbShowTeam);
             Controls.Add(btnSettings);
             Controls.Add(btnLoadPlayers);
             Controls.Add(panelFavoritePlayers);
@@ -239,5 +250,6 @@
         private FlowLayoutPanel panelFavoritePlayers;
         private Button btnLoadPlayers;
         private Button btnSettings;
+        private ComboBox cmbShowTeam;
     }
 }

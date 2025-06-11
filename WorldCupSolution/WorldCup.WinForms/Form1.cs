@@ -1,4 +1,5 @@
-﻿using WorldCup.Data.Models;
+﻿using System.Text.Json;
+using WorldCup.Data.Models;
 using WorldCup.Data.Services;
 
 namespace WorldCup.WinForms
@@ -26,6 +27,10 @@ namespace WorldCup.WinForms
         // so to solve this raise condition this var is introduced
         private bool _suppressGenderSave = false;
 
+        private TeamStatistics statsHome;
+        private TeamStatistics statsAway;
+        private List<Player> _currentHomePlayers = new();
+        private List<Player> _currentAwayPlayers = new();
 
         public Form1()
         {
@@ -397,6 +402,7 @@ namespace WorldCup.WinForms
 
         private void loadPlayers()
         {
+            /*
             var selectedIndex = lstMatches.SelectedIndex;
             if (selectedIndex == -1) return;
 
@@ -414,16 +420,6 @@ namespace WorldCup.WinForms
                 stats = selectedMatch.AwayTeamStatistics;
             }
 
-            /*
-            if (cmbTeamSide.SelectedItem?.ToString() == "Home")
-            {
-                stats = selectedMatch.HomeTeamStatistics;
-            }
-            else if (cmbTeamSide.SelectedItem?.ToString() == "Away")
-            {
-                stats = selectedMatch.AwayTeamStatistics;
-            }
-            */
 
             if (stats == null)
             {
@@ -447,7 +443,99 @@ namespace WorldCup.WinForms
                 var playerControl = new PlayerControl(player, isFavorite);
                 playerControl.Margin = new Padding(5);
                 panelPlayers.Controls.Add(playerControl);
+            }*/
+
+            var selectedIndex = lstMatches.SelectedIndex;
+            if (selectedIndex == -1) return;
+
+            var selectedMatch = _matches[selectedIndex];
+            statsHome = selectedMatch.HomeTeamStatistics;
+            statsAway = selectedMatch.AwayTeamStatistics;
+
+            // set fifa code in 
+            cmbShowTeam.Items.Clear();
+            cmbShowTeam.Items.AddRange(new[] { statsHome.Country, statsAway.Country });
+            // set defualt to the first team
+            cmbShowTeam.SelectedIndex = 0;
+
+            //  check which team is the first, assume home
+            var stats = statsHome;
+            if (cmbShowTeam.SelectedItem == statsAway.Country)
+            {
+                stats = statsAway;
             }
+
+            var fifaCode = cmbFavoriteTeam.SelectedItem?.ToString().Split('-')[0].Trim();
+            System.Diagnostics.Debug.WriteLine($"fifaCode {fifaCode}");
+
+            if (selectedMatch.AwayTeam.Code == fifaCode)
+            {
+                statsHome = selectedMatch.AwayTeamStatistics;
+                statsAway = selectedMatch.HomeTeamStatistics;
+            }
+
+            if (statsHome == null)
+            {
+                MessageBox.Show("No statistics available.");
+                return;
+            }
+
+            List<Player> _allPlayers = new();
+
+            var homeTeam = JsonSerializer.Serialize(statsHome, new JsonSerializerOptions { WriteIndented = true });
+            var awayTeam = JsonSerializer.Serialize(statsAway, new JsonSerializerOptions { WriteIndented = true });
+
+            System.Diagnostics.Debug.WriteLine($"statsHome: {homeTeam}");
+            System.Diagnostics.Debug.WriteLine($"statsAway: {awayTeam}");
+
+
+            _allPlayersInMatch = stats.StartingEleven.Concat(stats.Substitutes).ToList();
+            _currentHomePlayers = statsHome.StartingEleven.ToList();
+            _currentAwayPlayers = statsAway.StartingEleven.ToList();
+
+            panelPlayers.Controls.Clear();
+            // Iterate through all players (starting eleven + substitutes)
+            foreach (var player in _allPlayersInMatch)
+            {
+                // do not add player to the main list since it is in the facourite list
+                bool isFavorite = _favoritePlayers.Any(p => p.Name == player.Name);
+                if (isFavorite) continue;
+
+                // add player to the list of players
+                var playerControl = new PlayerControl(player, isFavorite);
+                playerControl.Margin = new Padding(5);
+                panelPlayers.Controls.Add(playerControl);
+            }
+
+        }
+
+        private void cmbShowTeam_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+            System.Diagnostics.Debug.WriteLine($"Coubtry {cmbShowTeam.SelectedItem}");
+
+            var stats = statsHome;
+            if (cmbShowTeam.SelectedItem == statsAway.Country)
+            {
+                stats = statsAway;
+            }
+
+            _allPlayersInMatch = stats.StartingEleven.Concat(stats.Substitutes).ToList();
+
+            panelPlayers.Controls.Clear();
+            // Iterate through all players (starting eleven + substitutes)
+            foreach (var player in _allPlayersInMatch)
+            {
+                // do not add player to the main list since it is in the facourite list
+                bool isFavorite = _favoritePlayers.Any(p => p.Name == player.Name);
+                if (isFavorite) continue;
+
+                // add player to the list of players
+                var playerControl = new PlayerControl(player, isFavorite);
+                playerControl.Margin = new Padding(5);
+                panelPlayers.Controls.Add(playerControl);
+            }
+
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -486,6 +574,27 @@ namespace WorldCup.WinForms
                 }
             }
         }
+
+
+        private async void btnSettings_Click(object sender, EventArgs e)
+        {
+            using (var form = new SettingsForm())
+            {
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    // refresh UI
+                    System.Diagnostics.Debug.WriteLine("REFRESH UI");
+
+
+                    _configService = new ConfigService();
+                    _localizationService = new LocalizationService();
+                    _localizationService.LoadLanguage(_configService.Settings.Language);
+                    ApplyLocalization();
+                    await LoadTeams();
+                }
+            }
+        }
+
 
         private void cmbFavoriteTeam_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -538,23 +647,6 @@ namespace WorldCup.WinForms
 
         }
 
-        private async void btnSettings_Click(object sender, EventArgs e)
-        {
-            using (var form = new SettingsForm())
-            {
-                if (form.ShowDialog() == DialogResult.OK)
-                {
-                    // refresh UI
-                    System.Diagnostics.Debug.WriteLine("REFRESH UI");
-
-
-                    _configService = new ConfigService();
-                    _localizationService = new LocalizationService();
-                    _localizationService.LoadLanguage(_configService.Settings.Language);
-                    ApplyLocalization();
-                    await LoadTeams();
-                }
-            }
-        }
+ 
     }
 }

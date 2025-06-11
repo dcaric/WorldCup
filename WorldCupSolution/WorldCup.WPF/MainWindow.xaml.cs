@@ -353,7 +353,11 @@ namespace WorldCup.WPF
             // Iterate through all players (starting eleven + substitutes)
             foreach (var player in _allPlayersInMatch)
             {
-                // Format the player information as a string
+                // do not add player to the main list since it is in the facourite list
+                bool isFavorite = _favoritePlayers.Any(p => p.Name == player.Name);
+                if (isFavorite) continue;
+
+                // add player to the list of players
                 string playerInfo = $"{player.ShirtNumber} - {player.Name} ({player.Position})";
                 if (player.Captain)
                 {
@@ -365,6 +369,77 @@ namespace WorldCup.WPF
             // Display on field
             DisplayPlayersOnField();
         }
+
+        private void DisplayPlayersOnField()
+        {
+            RedrawPlayers();
+        }
+
+        private void RedrawPlayers()
+        {
+            canvasPlayers.Children.Clear();
+
+            double fieldWidth = canvasPlayers.ActualWidth;
+            double fieldHeight = canvasPlayers.ActualHeight;
+
+            if (fieldWidth == 0 || fieldHeight == 0)
+                return;
+
+            List<Point> homeLayout = new()
+            {
+                new Point(0.0, 0.5), new Point(0.1, 0.2), new Point(0.1, 0.4),
+                new Point(0.1, 0.6), new Point(0.1, 0.8), new Point(0.2, 0.25),
+                new Point(0.2, 0.5), new Point(0.2, 0.75), new Point(0.30, 0.2),
+                new Point(0.30, 0.5), new Point(0.30, 0.8)
+            };
+
+            List<Point> awayLayout = new()
+            {
+                new Point(0.9, 0.5), new Point(0.8, 0.2), new Point(0.8, 0.4),
+                new Point(0.8, 0.6), new Point(0.8, 0.8), new Point(0.7, 0.25),
+                new Point(0.7, 0.5), new Point(0.7, 0.75), new Point(0.6, 0.2),
+                new Point(0.6, 0.5), new Point(0.6, 0.8)
+            };
+
+            void AddPlayers(List<Player> players, List<Point> layout)
+            {
+                for (int i = 0; i < players.Count && i < layout.Count; i++)
+                {
+                    var player = players[i];
+                    string playerName = $"{player.Name}";
+                    string playerShirt = $"{player.ShirtNumber}";
+                    var control = new PlayerControl(playerName, playerShirt) { Opacity = 0 };
+
+                    double x = layout[i].X * fieldWidth;
+                    double y = layout[i].Y * fieldHeight;
+
+                    Canvas.SetLeft(control, x);
+                    Canvas.SetTop(control, y);
+                    canvasPlayers.Children.Add(control);
+
+                    var fadeIn = new DoubleAnimation
+                    {
+                        From = 0,
+                        To = 1,
+                        Duration = TimeSpan.FromSeconds(0.5),
+                        BeginTime = TimeSpan.FromSeconds(i * 0.2)
+                    };
+                    Storyboard.SetTarget(fadeIn, control);
+                    Storyboard.SetTargetProperty(fadeIn, new PropertyPath("Opacity"));
+
+                    var sb = new Storyboard();
+                    sb.Children.Add(fadeIn);
+                    sb.Begin();
+                }
+            }
+
+            AddPlayers(_currentHomePlayers, homeLayout);
+            AddPlayers(_currentAwayPlayers, awayLayout);
+        }
+
+
+
+
 
         private void BtnAddToFavorites_Click(object sender, RoutedEventArgs e)
         {
@@ -608,74 +683,7 @@ namespace WorldCup.WPF
 
 
 
-        private void DisplayPlayersOnField()
-        {
-            RedrawPlayers();
-        }
-
-        private void RedrawPlayers()
-        {
-            canvasPlayers.Children.Clear();
-
-            double fieldWidth = canvasPlayers.ActualWidth;
-            double fieldHeight = canvasPlayers.ActualHeight;
-
-            if (fieldWidth == 0 || fieldHeight == 0)
-                return;
-
-            List<Point> homeLayout = new()
-            {
-                new Point(0.0, 0.5), new Point(0.1, 0.2), new Point(0.1, 0.4),
-                new Point(0.1, 0.6), new Point(0.1, 0.8), new Point(0.2, 0.25),
-                new Point(0.2, 0.5), new Point(0.2, 0.75), new Point(0.30, 0.2),
-                new Point(0.30, 0.5), new Point(0.30, 0.8)
-            };
-
-            List<Point> awayLayout = new()
-            {
-                new Point(0.9, 0.5), new Point(0.8, 0.2), new Point(0.8, 0.4),
-                new Point(0.8, 0.6), new Point(0.8, 0.8), new Point(0.7, 0.25),
-                new Point(0.7, 0.5), new Point(0.7, 0.75), new Point(0.6, 0.2),
-                new Point(0.6, 0.5), new Point(0.6, 0.8)
-            };
-
-            void AddPlayers(List<Player> players, List<Point> layout)
-            {
-                for (int i = 0; i < players.Count && i < layout.Count; i++)
-                {
-                    var player = players[i];
-                    string playerName = $"{player.Name}";
-                    string playerShirt = $"{player.ShirtNumber}";
-                    var control = new PlayerControl(playerName, playerShirt) { Opacity = 0 };
-
-                    double x = layout[i].X * fieldWidth;
-                    double y = layout[i].Y * fieldHeight;
-
-                    Canvas.SetLeft(control, x);
-                    Canvas.SetTop(control, y);
-                    canvasPlayers.Children.Add(control);
-
-                    var fadeIn = new DoubleAnimation
-                    {
-                        From = 0,
-                        To = 1,
-                        Duration = TimeSpan.FromSeconds(0.5),
-                        BeginTime = TimeSpan.FromSeconds(i * 0.2)
-                    };
-                    Storyboard.SetTarget(fadeIn, control);
-                    Storyboard.SetTargetProperty(fadeIn, new PropertyPath("Opacity"));
-
-                    var sb = new Storyboard();
-                    sb.Children.Add(fadeIn);
-                    sb.Begin();
-                }
-            }
-
-            AddPlayers(_currentHomePlayers, homeLayout);
-            AddPlayers(_currentAwayPlayers, awayLayout);
-        }
-
-
+ 
 
     }
 }
